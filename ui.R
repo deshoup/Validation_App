@@ -12,7 +12,7 @@ fluidPage(
             tags$title("Data Validation App")),
   useShinyjs(),
   
-  # Application title with ODWC logos
+  # Application title with ODWC logos####
   titlePanel(
     wellPanel(
       fluidRow(
@@ -27,6 +27,9 @@ fluidPage(
     windowTitle = "OK Fishery Analysis App" #this text is what appears as browser title
   ),
   tabsetPanel(type = c("tabs"),
+              
+              
+    #Validate Sample Data Tab####
     tabPanel("Validate Sample Data",
       hr(),
       fluidRow(
@@ -51,7 +54,7 @@ fluidPage(
             #checkboxInput("period2NA", "Change Periods to NA's", value = FALSE), #decided to hard code this
             hr(),
             h4(tags$b("2) Initiate sample data validation check")),
-            actionButton("validateSamp", "Initiate Validation",class="butn"),
+              actionButton("validateSamp", "Initiate Validation", class="butn"),
             helpText("Error Identification Table will appear in middle panel."),
             hr(),
             h4(tags$b("3) Observe error status and fix as needed")),
@@ -63,9 +66,14 @@ fluidPage(
             helpText("If all error rules are 'Okay', dataset is ready to download."),
             helpText("Validated data will have required SampleID field and will be ready to
                      upload to main app."),
-            downloadButton("valSampleData", "Download validated sample data",class="butn")
+            
+            
+            h4(textOutput("downloadMessage")),
+            downloadButton("valSampleData", "Download validated sample data", class="butn", disabled = "disabled")
           )  
         ),
+        
+        #Middle column with red errors or green Okays for each test
         column(3, align = "center",
           wellPanel(
             h4(tags$b("Error Identification Table")),
@@ -74,6 +82,8 @@ fluidPage(
             formattableOutput("sampleError")
           )
         ),
+        
+        #third column with check boxes to identify offending rows
         column(4,
           wellPanel(
             h4(tags$b("Identify Row Numbers with Errors"), align = "center"),
@@ -90,6 +100,8 @@ fluidPage(
               textOutput("sampDay"),
             checkboxInput("sampYear", "Invalid Year"),
               textOutput("sampYear"),
+            checkboxInput("sampDate", "Year, month, & day make valid date"),
+              textOutput("sampDate"),
             checkboxInput("sampGear", "Invalid Gear Code"),
               textOutput("sampGear"),
             checkboxInput("sampLength", "Invalid Gear Length"),
@@ -102,21 +114,28 @@ fluidPage(
               textOutput("sampNOI"),
             checkboxInput("sampTL", "Invalid Total Length"),
               textOutput("sampTL"),
+            checkboxInput("unusualTL", "Abnormally large or small TL"),
+              textOutput("unusualTL"),
             checkboxInput("sampWt", "Invalid Weight"),
               textOutput("sampWt"),
-            checkboxInput("sampWr", "Invalid Relative Weight"),
+            checkboxInput("sampWr", "Unusual Relative Weight (<20 or >120)"),
               textOutput("sampWr")
           )
         )
       ),
+
       #Display uploaded data in table (will include Wr)
       hr(),
       fluidRow(
-        textOutput("Data can be filtered using buttons above to show rows specific to errors"),
-        DT::dataTableOutput("sampleDataDisplayTable")
+        # textOutput("Data can be filtered using buttons above to show rows specific to errors"),
+        # DT::dataTableOutput("sampleDataDisplayTable")
+        DT::DTOutput("sampleDataDisplayTable")
       )
     ),
     
+    
+    
+    #Validate Age Data Tab####
     tabPanel("Validate Age Data",
       hr(),
       fluidRow(
@@ -146,7 +165,10 @@ fluidPage(
             helpText("If all error rules are 'Okay', age dataset is ready to download."),
             helpText("Validated age data will be ready to
                      upload to main app."),
-            downloadButton("valAgeData", "Download validated age data",class="butn")
+            
+            
+            h4(textOutput("downloadMessageAge")),
+            downloadButton("valAgeData", "Download validated age data", class="butn", disabled = "disabled")
           )  
         ),
         column(3, align = "center",
@@ -169,6 +191,8 @@ fluidPage(
               textOutput("ageDay"),
              checkboxInput("ageYear", "Invalid Year"),
               textOutput("ageYear"),
+             checkboxInput("ageDate", "Year, month, & day make valid date"),
+              textOutput("ageDate"),
              checkboxInput("ageGear", "Invalid Gear Code"),
               textOutput("ageGear"),
              checkboxInput("ageSpp", "Invalid Species Code"),
@@ -177,12 +201,23 @@ fluidPage(
               textOutput("ageNOI"),
              checkboxInput("ageTL", "Invalid Total Length"),
               textOutput("ageTL"),
+             checkboxInput("unusualAgeTL", "Abnormally large or small TL"),
+              textOutput("unusualAgeTL"),
              checkboxInput("age", "Invalid Age"),
              textOutput("age")
           )
         )
+     
+      ), 
+      
+      # #Display uploaded age data in table with row numbers
+      hr(),
+      fluidRow(
+        DT::dataTableOutput("ageDataDisplayTable")
       )
     ),
+    
+    #Validation Rules Tab####
     tabPanel("Validation Rule Details",
       hr(),
       fluidPage(
@@ -194,8 +229,15 @@ fluidPage(
             h5(tags$b("These data validation rules were put in place for two reasons. 1) To help ensure quality data are being used by the ODWC
                       to aid in making informed fisheries management decisions.  This also helps provide data integrity of the ODWC Fisheries Database to help
                       back findings or views.  2) To help ensure data run smoothly through the main Oklahoma Fishery Analysis Application.
-                      For these reasons, please do not abstain from this step in the process"), align = "center"),
+                      For these reasons, please do not abstain from this step in the process"), align = "left"),
             hr(),
+            h4("Correct column names and order"),
+              helpText("Use the Download Template to see the proper headdings and column order.  You are required to use
+                       these columns in these orders.  An error in this row indicates your spreadsheet had missing columns,
+                       columns in the wrong order, or extra columns that are not in the template."),
+            h4("Blank cells instead of periods"),
+              helpText("if a cell does not have a value, a period should be put in the cell to indicate it is intentionally
+                       being left blank.  Just leaving the cell blank is not acceptable."),
             h4("Invalid Lake Code"),
               helpText("Lake Code must be present in the established list of lake codes and cannot be blank.  
                         Check for spelling, capitalization, etc.
@@ -204,11 +246,16 @@ fluidPage(
             h4("Blank Station"),
               helpText("Station is a required field and cannot be blank.  Include a station (numerical, character, or alpha-numeric) for 
                        each site sampled."),
+            h4("Missing station ID's based on time codes"),
+              helpText("There are more time codes than station ID values.  Station ID is important to the function of the app
+                       and is no longer optional. Each gear replicate must have a unique station ID on a given day."),
             h4("Invalid Month, Day, or Year"),
               helpText("Month, Day, and Year fields are required and cannot be blank."),
               helpText("Month must be an integer between 1 and 12."),
               helpText("Day must be an integer between 1 and 31."),
               helpText("Year must be an integer between 1980 and the current year."),
+            h4("Year, month, & day make valid date"),
+              helpText("The combination of month, day, and year must be a possible date (i.e., no February 30th is possible)."),
             h4("One Gear Code"),
               helpText("Due to the nature of checking Gear Length and Effort based on Gear Code, only one Gear Code can be uploaded and validated
                        at a time.  Make sure only one Gear Code is present in the sample data and that there are no blanks."),
@@ -240,14 +287,18 @@ fluidPage(
               helpText("There are no limitations for lengths and weights, however these values cannot be zero.  It is impossible for a fish to
                        be 0 mm or weigh 0 grams.  If a length or weight was not measured for a fish, leave these fields blank (blank)."),
             h4("Invalid Total Length (Age Data)"),
-              helpText("There are no limitations for Total Lengths, but these values cannot be 0 or blank.
+              helpText("Total Lengthscannot be 0 or blank.
                        A fish cannot be 0 mm, and an associated length is needed for age information."),
+            h4("Abnormally large or small TL"),
+              helpText("fish is unusually large or small for the species based on a table of values the ODWC SSP committee
+                       developed.  This will not prevent you from using these data, but you should double check the value of 
+                       these rows to be sure the fish really were exeptionally large or smal and that this is not a mistake."),
             h4("Invalid Relative Weight"),
               helpText("This validation rule is aimed to flag fish that may have mis-measured or mis-typed lengths or weights.  Relative weights
                        are calculated for all fish possible, and fish that have relative weights < 20 or > 200 are flagged with an error.  If the
                       user is confident the length and weight are correct, this error may be bypassed.  If not, we recommend just leaving the length 
                        and weight blank for that particular fish unless you know for sure which is incorrect."),
-            h4("Invalid Age"),
+            h4("Invalid Age (Age Data)"),
               helpText("Ages must be an integer between 0 and 40.  Blanks are not allowed, and refrain from
                        entering anything other than an integer (e.g., YOY, 10+).")
           )
