@@ -2,7 +2,7 @@
 library(shiny)
 library(shinyjs)
 library(V8)#package needed to refresh page...only used if we upload csv files
-library(formattable)
+library(formattable) #used for formattableOutput() function to produce error table more easily
 library(DT)
 jsResetCode <- "shinyjs.reset = function() {history.go(0)}" #Javascript needed to refresh page...will only need on file upload screen
 
@@ -16,12 +16,19 @@ fluidPage(
   titlePanel(
     wellPanel(
       fluidRow(
-        column(3,align="center", img(src="ODWClogo.gif", height="auto", width="150px")),
+        column(3,align="center", img(src="ODWClogo.gif", height="auto", width="110px")),
         column(6, align="center", tags$b(h2("ODWC Data Validation Application")),
-               h4("for input into Oklahoma Fishery Analysis Application"),
+               h4("quality testing for data to upload into Oklahoma Fishery Analysis Application"),
                hr(), 
                h5("Created by Dray D. Carl and Daniel E. Shoup")),
-        column(3, align="center",img(src="osulogo.png", height="auto", width="180px"))
+              #below line vertically centers OSU logo...sets height to 1210 px
+                tags$style(HTML('
+                      .verticalcenter {
+                      display: table-cell;                      
+                      height: 120px;
+                      vertical-align: middle;
+                      }')),
+        column(3, align="center", img(src="osulogo.png", height="auto", width="auto",class="verticalcenter"))
       )
     ),
     windowTitle = "OK Fishery Analysis App" #this text is what appears as browser title
@@ -118,7 +125,7 @@ fluidPage(
               textOutput("unusualTL"),
             checkboxInput("sampWt", "Invalid Weight"),
               textOutput("sampWt"),
-            checkboxInput("sampWr", "Unusual Relative Weight (<20 or >120)"),
+            checkboxInput("sampWr", "Unusual Relative Weight (<60 or >120)"),
               textOutput("sampWr")
           )
         )
@@ -229,10 +236,10 @@ fluidPage(
             h5(tags$b("These data validation rules were put in place for two reasons. 1) To help ensure quality data are being used by the ODWC
                       to aid in making informed fisheries management decisions.  This also helps provide data integrity of the ODWC Fisheries Database to help
                       back findings or views.  2) To help ensure data run smoothly through the main Oklahoma Fishery Analysis Application.
-                      For these reasons, please do not abstain from this step in the process"), align = "left"),
+                      For these reasons, please use this app to produce the best quality data you can."), align = "left"),
             hr(),
             h4("Correct column names and order"),
-              helpText("Use the Download Template to see the proper headdings and column order.  You are required to use
+              helpText("Use the Download Template to see the proper headings and column order.  You are required to use
                        these columns in these orders.  An error in this row indicates your spreadsheet had missing columns,
                        columns in the wrong order, or extra columns that are not in the template."),
             h4("Blank cells instead of periods"),
@@ -284,23 +291,29 @@ fluidPage(
               helpText("The number of individuals field cannot be 0 and cannot be blank.  Even for species code 98 (no fish in sample), enter a
                        one for number of individuals.  This is crucial for proper calculation of CPUE."),
             h4("Invalid Total Length or Weight (Sample Data)"),
-              helpText("There are no limitations for lengths and weights, however these values cannot be zero.  It is impossible for a fish to
+              helpText("This test only looks to make sure TL and Wt values are numeric and >0 (or a period is used to indicate
+                       no data were taken for this record).  It is impossible for a fish to
                        be 0 mm or weigh 0 grams.  If a length or weight was not measured for a fish, leave these fields blank (blank)."),
             h4("Invalid Total Length (Age Data)"),
-              helpText("Total Lengthscannot be 0 or blank.
-                       A fish cannot be 0 mm, and an associated length is needed for age information."),
+              helpText("Total Lengthscannot be 0 or blank. A fish cannot be 0 mm, and an associated length is needed for age 
+                       information. If a length is not available for a fish, the entire record should be deleted (i.e., delete
+                       the row from the file)"),
             h4("Abnormally large or small TL"),
               helpText("fish is unusually large or small for the species based on a table of values the ODWC SSP committee
                        developed.  This will not prevent you from using these data, but you should double check the value of 
-                       these rows to be sure the fish really were exeptionally large or smal and that this is not a mistake."),
+                       these rows to be sure the fish really were exeptionally large or smal and that this is not a mistake.
+                       If a weight or TL is suspect, it is probably better to delete it (replace with a perioe). Do not delete
+                       the whole row though as that would change CPUE.  Instead leave the missing TL or weight but have the
+                       number of individuals = 1 so this row still counts in CPUE calculations"),
             h4("Invalid Relative Weight"),
               helpText("This validation rule is aimed to flag fish that may have mis-measured or mis-typed lengths or weights.  Relative weights
-                       are calculated for all fish possible, and fish that have relative weights < 20 or > 200 are flagged with an error.  If the
+                       are calculated for all fish possible, and fish that have relative weights < 50 or > 150 are flagged with an error.  If the
                       user is confident the length and weight are correct, this error may be bypassed.  If not, we recommend just leaving the length 
-                       and weight blank for that particular fish unless you know for sure which is incorrect."),
+                       and weight blank for that particular fish unless you know for sure which is incorrect (again, put a period in TL or Wt column
+                      but do not leave them blank and do not delete the whole row as that woudl impact CPUE calculations)."),
             h4("Invalid Age (Age Data)"),
               helpText("Ages must be an integer between 0 and 40.  Blanks are not allowed, and refrain from
-                       entering anything other than an integer (e.g., YOY, 10+).")
+                       entering anything other than an integer (e.g., no values like: YOY, 10+, etc.).")
           )
         ),
         column(3, align = "center",

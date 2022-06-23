@@ -3,7 +3,7 @@ library(dplyr)
 library(plyr)
 library(tibble)
 library(FSA)
-library(formattable)
+library(formattable) #used for formattableOutput() function to produce error table more easily
 library(shinyjs)
 library(DT)
 
@@ -59,8 +59,18 @@ output$ageTemplate <- downloadHandler(
                        mutate(Gear.Code = as.numeric(as.character(Gear.Code)),
                            Species.Code = as.numeric(Species.Code),
                            Number.of.individuals = as.numeric(as.character(Number.of.individuals)))
+      #create Verified.TL.Wr column if it does not exist. This will be used to mark abnormal TL/Wr values that have been verified
+      if("Verified.TL.Wr" %in% colnames(sampleData)){
+          sampleData <- sampleData %>% mutate(Verified.TL.Wr = as.character(Verified.TL.Wr))
+          sampleData$Verified.TL.Wr[sampleData$Verified.TL.Wr == ""] <- NA
+        }else{
+          sampleData$Verified.TL.Wr <- as.character(NA)
+      }
 
-      sampleData$Station[sampleData$Station=="."] <- NA #need this to test for missing station as this should never be blank, but cannot get test for blank station code to check for "." for some reason...so this fixes that issue
+      sampleData$Station[sampleData$Station=="."] <- NA #need this to test for missing station as this should never be blank, 
+      #(i.e., any period is an illigetimate value anyhow) but I cannot get test for blank station code to check for "." 
+      #for some reason...so this approach fixes that issue by searching for periods and NA's simply by searching for NAs.
+      
       #below code was when we had button on shiny app to convert "." to NA.  We decided to just require "." rather than blanks or NA so this is not needed and was removed
       # if(input$period2NA == TRUE){
       #   sampleData[sampleData == "."] <- NA
@@ -79,6 +89,13 @@ ageData <- reactive({
     #ageData <- read.csv(ageData$datapath)
     ageData <- mutate(ageData, Gear = as.numeric(as.character(Gear)), Species.Code = as.numeric(Species.Code),
                       Number.of.individuals = as.numeric(as.character(Number.of.individuals)))
+    #create Verified.TL column if it does not exist. This will be used to mark abnormal TL values that have been verified.
+    if("Verified.TL" %in% colnames(ageData)){
+      ageData <- ageData %>% mutate(Verified.TL = as.character(Verified.TL))
+      ageData$Verified.TL[ageData$Verified.TL == ""] <- NA
+    }else{
+      ageData$Verified.TL <- as.character(NA)
+    }
     ageData[ageData == "."] <- NA #replace periods with "NA"...now hard coded rather than using next 3 lines and check box
       #we are not requiring "." for age data...basically nothing should be blank, "NA" or ".", so this is ok to convert here so we can
       #check for NA's using code below and capture true NA, "", and "." at same time
@@ -92,8 +109,11 @@ ageData <- reactive({
 
 #Test validated data to see if safe to download
 downloadSampleOK <- reactive({
-  validateSample <- validateSample() %>% filter(Error != "Unusual Relative Weight (<20 or >120)" &
-                        Error != "Abnormally large or small TL")
+  # validateSample <- validateSample() %>% filter(Error != "Unusual Relative Weight (<50 or >150)" &
+  #                         Error != "Abnormally large or small TL")
+      #originally allowed download if only errors were unusal TL or Wr (above 2 lines). now we verify the TL and Wr, so those
+      #should not be downloadable if they exist too.
+  validateSample <- validateSample()
   errors <- as.character(validateSample$Status)
   if("Error" %in% errors){
     FALSE #don't download
@@ -153,7 +173,10 @@ downloadSampleOK <- reactive({
     
 #Test Age data to see if safe to download
 downloadAgeOK <- reactive({
-  validateAge <- validateAge() %>% filter(Error != "Abnormally large or small TL")
+  # validateAge <- validateAge() %>% filter(Error != "Abnormally large or small TL")
+          #we originally omitted invalid "abnormal" sized fish and allowed download (above code).  
+          #I'm removing this now that we have vefication step
+  validateAge <- validateAge() 
   errors <- as.character(validateAge$Status)
   if("Error" %in% errors){
     FALSE #don't download
@@ -409,7 +432,7 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
           okay <- c("Invalid Gear Code", "Okay")
           errorTable <- rbind(errorTable, okay)
           
-          # if Gear.Code is not invalid, we can check Gear.Length and Effort
+          # if Gear.Code is valid, we can check Gear.Length and Effort
           # Check Gear.Length according to Gear.Code######################
           # if electrofishing, gear length (minutes of efishing) must be between 1 and 300 (total minutes fished for station sample) and not null
           # if electrofishing, effort (1 unit = 10 min) must be between 0.1 (1-min) and 24 (240 min, 4 hrs) and not null
@@ -512,12 +535,12 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
           }
           errorTable <- rbind(errorTable, okay)
           
-        } else{
+        }else{
           # if Gear.Code is invalid, we can not check Gear.Length 
           okay <- c("Invalid Gear Code", "Error")
           errorTable <- rbind(errorTable, okay)
         }
-      } else{
+      }else{
         # if more than one Gear.Code, invalid, cannot check Gear.Code or Gear.Length
         okay <- c("One Gear Code", "Error")
         errorTable <- rbind(errorTable, okay)
@@ -570,12 +593,15 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
       }
       errorTable <- rbind(errorTable, okay)
       
-      
-      #Test TL for min and max values########################################
+     #Test TL for min and max values########################################
       sampleDataTL <- filter(sampleData(), !is.na(TL_mm))
       unusualTL <- left_join(sampleDataTL, minMaxTL, by= "Species.Code") %>% 
                   mutate(TL_mm = as.numeric(as.character(TL_mm)))%>% #some files pull this in as factor and can't use > and < then
-                  filter(TL_mm < minTL | TL_mm > maxTL)
+                  filter((Gear.Code == 10 & TL_mm > maxTL) | (Gear.Code!=10 & (TL_mm < minTL | TL_mm > maxTL))) %>% 
+            #next 2 lines skip any row marked verified (needed to replace NA's as filter won't work with NA's)
+            mutate(Verified.TL.Wr = case_when(is.na(Verified.TL.Wr) ~ "notVerif")) %>% 
+              filter(Verified.TL.Wr != "verified" | Verified.TL.Wr != "Verified")
+                
         if(nrow(unusualTL)==0){
           okay <- c("Abnormally large or small TL", "Okay")
         }else{
@@ -595,27 +621,29 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
       errorTable <- rbind(errorTable, okay)
         
       
-      # Relative weight between 60 and 120...indicates abnormal length-weight combination############
+      # Relative weight between 50 and 150...indicates abnormal length-weight combination############
           #used to be 20 and 200, but SSP committee tightened to this as a check of abnormally heavy
-          #or light fish
+          #or light fish...went to 60 and 120, but that was too restrictive
       sampleData <- join(sampleData, WSnames, by = "Species.Code")
       sampleData <- filter(sampleData, !is.na(TL_mm) & !is.na(Wt_g) & !is.na(wsname) & TL_mm!="." & Wt_g!=".")
       
-      #if no records are available for Wr analysis, then "okay", otherwise calc Wr and see if in range 60-120
+      #if no records are available for Wr analysis, then "okay", otherwise calc Wr and see if in range 50-150
       if(nrow(sampleData) == 0){
-        # okay <- c("Invalid Relative Weight", "Okay")
-        okay <- c("Unusual Relative Weight (<20 or >120)", "Okay")
+        okay <- c("Unusual Relative Weight (<50 or >150)", "Okay")
         errorTable <- rbind(errorTable, okay)
-      } else{
+      }else{
         sampleData$Wr <- wrAdd(as.numeric(as.character(Wt_g)) ~ as.numeric(as.character(TL_mm)) + wsname, units = "metric", data = sampleData)
-        invalidWr <- filter(.data = sampleData, Wr < 60 | Wr >120)
+        invalidWr <- filter(.data = sampleData, Wr < 50 | Wr >150) %>% 
+          #next 2 lines skip any row marked verified (needed to replace NA's as filter won't work with NA's)
+          mutate(Verified.TL.Wr = case_when(is.na(Verified.TL.Wr) ~ "notVerif")) %>% 
+            filter(Verified.TL.Wr != "verified" | Verified.TL.Wr != "Verified")
         
         if(nrow(invalidWr) == 0){
           # okay <- c("Invalid Relative Weight", "Okay")
-          okay <- c("Unusual Relative Weight (<20 or >120)", "Okay")
-        } else{
+          okay <- c("Unusual Relative Weight (<50 or >150)", "Okay")
+        }else{
           # okay <- c("Invalid Relative Weight", "Error")
-          okay <- c("Unusual Relative Weight (<20 or >120)", "Error")
+          okay <- c("Unusual Relative Weight (<50 or >150)", "Error")
         }
         errorTable <- rbind(errorTable, okay)
       }
@@ -744,46 +772,47 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
   output$sampLength <- renderText({
     if(input$sampLength == TRUE){
       sampleData <- sampleData()
-      if(unique(sampleData$Gear.Code) >= 41){
-        sampleData <- rownames_to_column(sampleData, "Rows")
-        invalidLength <- filter(.data = sampleData, Gear.Length > 300 | Gear.Length < 1)
-        sampleData$NAlength <- lapply(sampleData$Gear.Length, is.na)
-        NAlength <- filter(.data = sampleData, NAlength == "TRUE")
-        NAlength <- NAlength[,-20]
-        invalidLength <- rbind(invalidLength, NAlength)
-        invalidLength <- mutate(.data = invalidLength, Rows = as.numeric(as.character(Rows))+1)
-        sampLength <- sort.int(c(invalidLength$Rows))
-      }
-      if(unique(sampleData$Gear.Code) < 40 && unique(sampleData$Gear.Code) > 30){
-        sampleData <- rownames_to_column(sampleData, "Rows")
-        invalidLength <- filter(.data = sampleData, Gear.Length > 150 | Gear.Length < 5)
-        sampleData$NAlength <- lapply(sampleData$Gear.Length, is.na)
-        NAlength <- filter(.data = sampleData, NAlength == "TRUE")
-        NAlength <- NAlength[,-20]
-        invalidLength <- rbind(invalidLength, NAlength)
-        invalidLength <- mutate(.data = invalidLength, Rows = as.numeric(as.character(Rows))+1)
-        sampLength <- sort.int(c(invalidLength$Rows))
-      }
-      if(unique(sampleData$Gear.Code) < 30 && unique(sampleData$Gear.Code) > 20){
-        sampleData <- rownames_to_column(sampleData, "Rows")
-        invalidLength <- filter(.data = sampleData, Gear.Length > 2000 | Gear.Length < 10)
-        sampleData$NAlength <- lapply(sampleData$Gear.Length, is.na)
-        NAlength <- filter(.data = sampleData, NAlength == "TRUE")
-        NAlength <- NAlength[,-20]
-        invalidLength <- rbind(invalidLength, NAlength)
-        invalidLength <- mutate(.data = invalidLength, Rows = as.numeric(as.character(Rows))+1)
-        sampLength <- sort.int(c(invalidLength$Rows))
-      }
-      if(unique(sampleData$Gear.Code) == 10){
-        sampleData <- rownames_to_column(sampleData, "Rows")
-        invalidLength <- filter(.data = sampleData, Gear.Length > 100 | Gear.Length < 5)
-        sampleData$NAlength <- lapply(sampleData$Gear.Length, is.na)
-        NAlength <- filter(.data = sampleData, NAlength == "TRUE")
-        NAlength <- NAlength[,-20]
-        invalidLength <- rbind(invalidLength, NAlength)
-        invalidLength <- mutate(.data = invalidLength, Rows = as.numeric(as.character(Rows))+1)
-        sampLength <- sort.int(c(invalidLength$Rows))
-      }
+      if(length(unique(sampleData$Gear.Code))>1){
+          sampLength <- "More than one Gear.Code was used, so gear length cannot be evaluated"
+        }else if(length(unique(sampleData$Gear.Code))==0){
+          sampLength <- "Gear.Code is not valid, so gear length cannot be evaluated"
+        }else if(unique(sampleData$Gear.Code) >= 41){
+          sampleData <- rownames_to_column(sampleData, "Rows")
+          invalidLength <- filter(.data = sampleData, Gear.Length > 300 | Gear.Length < 1)
+          sampleData$NAlength <- lapply(sampleData$Gear.Length, is.na)
+          NAlength <- filter(.data = sampleData, NAlength == "TRUE")
+          NAlength <- NAlength[,-20]
+          invalidLength <- rbind(invalidLength, NAlength)
+          invalidLength <- mutate(.data = invalidLength, Rows = as.numeric(as.character(Rows))+1)
+          sampLength <- sort.int(c(invalidLength$Rows))
+        }else if(unique(sampleData$Gear.Code) < 40 && unique(sampleData$Gear.Code) > 30){
+          sampleData <- rownames_to_column(sampleData, "Rows")
+          invalidLength <- filter(.data = sampleData, Gear.Length > 150 | Gear.Length < 5)
+          sampleData$NAlength <- lapply(sampleData$Gear.Length, is.na)
+          NAlength <- filter(.data = sampleData, NAlength == "TRUE")
+          NAlength <- NAlength[,-20]
+          invalidLength <- rbind(invalidLength, NAlength)
+          invalidLength <- mutate(.data = invalidLength, Rows = as.numeric(as.character(Rows))+1)
+          sampLength <- sort.int(c(invalidLength$Rows))
+        }else if(unique(sampleData$Gear.Code) < 30 && unique(sampleData$Gear.Code) > 20){
+          sampleData <- rownames_to_column(sampleData, "Rows")
+          invalidLength <- filter(.data = sampleData, Gear.Length > 2000 | Gear.Length < 10)
+          sampleData$NAlength <- lapply(sampleData$Gear.Length, is.na)
+          NAlength <- filter(.data = sampleData, NAlength == "TRUE")
+          NAlength <- NAlength[,-20]
+          invalidLength <- rbind(invalidLength, NAlength)
+          invalidLength <- mutate(.data = invalidLength, Rows = as.numeric(as.character(Rows))+1)
+          sampLength <- sort.int(c(invalidLength$Rows))
+        }else if(unique(sampleData$Gear.Code) == 10){
+          sampleData <- rownames_to_column(sampleData, "Rows")
+          invalidLength <- filter(.data = sampleData, Gear.Length > 100 | Gear.Length < 5)
+          sampleData$NAlength <- lapply(sampleData$Gear.Length, is.na)
+          NAlength <- filter(.data = sampleData, NAlength == "TRUE")
+          NAlength <- NAlength[,-20]
+          invalidLength <- rbind(invalidLength, NAlength)
+          invalidLength <- mutate(.data = invalidLength, Rows = as.numeric(as.character(Rows))+1)
+          sampLength <- sort.int(c(invalidLength$Rows))
+        }
       sampLength
     }
   })
@@ -791,7 +820,11 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
   output$sampEffort <- renderText({
     if(input$sampEffort == TRUE){
       sampleData <- sampleData()
-      if(unique(sampleData$Gear.Code) >= 41){
+      if(length(unique(sampleData$Gear.Code))>1){
+        sampEffort <- "More than one Gear.Code was used, so Effort cannot be evaluated"
+      }else if(length(unique(sampleData$Gear.Code))==0){
+        sampEffort <- "Gear.Code is not valid, so Effort cannot be evaluated"
+      }else if(unique(sampleData$Gear.Code) >= 41){
         sampleData <- rownames_to_column(sampleData, "Rows")
         invalidEffort <- filter(.data = sampleData, Effort > 24 | Effort < 0.1)
         sampleData$NAEffort <- lapply(sampleData$Effort, is.na)
@@ -800,8 +833,7 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
         invalidEffort <- rbind(invalidEffort, NAEffort)
         invalidEffort <- mutate(.data = invalidEffort, Rows = as.numeric(as.character(Rows))+1)
         sampEffort <- sort.int(c(invalidEffort$Rows))
-      }
-      if(unique(sampleData$Gear.Code) < 40 && unique(sampleData$Gear.Code) > 30){
+      }else if(unique(sampleData$Gear.Code) < 40 && unique(sampleData$Gear.Code) > 30){
         sampleData <- rownames_to_column(sampleData, "Rows")
         invalidEffort <- filter(.data = sampleData, Effort > 96 | Effort < 0.1)
         sampleData$NAEffort <- lapply(sampleData$Effort, is.na)
@@ -810,8 +842,7 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
         invalidEffort <- rbind(invalidEffort, NAEffort)
         invalidEffort <- mutate(.data = invalidEffort, Rows = as.numeric(as.character(Rows))+1)
         sampEffort <- sort.int(c(invalidEffort$Rows))
-      }
-      if(unique(sampleData$Gear.Code) < 30 && unique(sampleData$Gear.Code) > 20){
+      }else if(unique(sampleData$Gear.Code) < 30 && unique(sampleData$Gear.Code) > 20){
         sampleData <- rownames_to_column(sampleData, "Rows")
         invalidEffort <- filter(.data = sampleData, Effort > 96 | Effort < 0.1)
         sampleData$NAEffort <- lapply(sampleData$Effort, is.na)
@@ -820,8 +851,7 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
         invalidEffort <- rbind(invalidEffort, NAEffort)
         invalidEffort <- mutate(.data = invalidEffort, Rows = as.numeric(as.character(Rows))+1)
         sampEffort <- sort.int(c(invalidEffort$Rows))
-      }
-      if(unique(sampleData$Gear.Code) == 10){
+      }else if(unique(sampleData$Gear.Code) == 10){
         sampleData <- rownames_to_column(sampleData, "Rows")
         invalidEffort <- filter(.data = sampleData, Effort < 100)
         sampleData$NAEffort <- lapply(sampleData$Effort, is.na)
@@ -876,7 +906,11 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
       unusualTL <- rownames_to_column(sampleData, "Rows")
       unusualTL <- left_join(unusualTL, minMaxTL, by= "Species.Code") %>% 
                   mutate(TL_mm = as.numeric(as.character(TL_mm)))%>% #some files pull this in as factor and can't use > and < then
-                  filter(TL_mm < minTL | TL_mm > maxTL)
+                  filter(TL_mm < minTL | TL_mm > maxTL) %>% 
+        #next 2 lines skip any row marked verified (needed to replace NA's as filter won't work with NA's)
+        mutate(Verified.TL.Wr = case_when(is.na(Verified.TL.Wr) ~ "notVerif")) %>% 
+          filter(Verified.TL.Wr != "verified" | Verified.TL.Wr != "Verified")
+      
       unusualTL <- unusualTL %>% mutate(Rows = as.numeric(as.character(Rows)) + 1)
       c(unusualTL$Rows)
     }
@@ -897,13 +931,18 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
       sampleData <- sampleData()
         sampleData <- rownames_to_column(sampleData, "Rows")
       sampleData <- join(sampleData, WSnames, by = "Species.Code")
-      sampleData <- filter(sampleData, !is.na(TL_mm) & !is.na(Wt_g) & !is.na(wsname))
+      sampleData <- filter(sampleData, !is.na(TL_mm) & !is.na(Wt_g) & !is.na(wsname)) %>% 
+        #next 2 lines skip any row marked verified (needed to replace NA's as filter won't work with NA's)
+        mutate(Verified.TL.Wr = case_when(is.na(Verified.TL.Wr) ~ "notVerif")) %>% 
+          filter(Verified.TL.Wr != "verified" | Verified.TL.Wr != "Verified")
+      
       if(nrow(sampleData) == 0){
-        sampWr <- "Okay"
+        # sampWr <- "Okay"
+        sampWr <- NULL
       } else{
         sampleData$Wr <- wrAdd(as.numeric(as.character(Wt_g)) ~ as.numeric(as.character(TL_mm)) + wsname, units = "metric", data = sampleData)
         sampWr <- sampleData
-        sampWr <- filter(.data = sampWr, Wr < 60 | Wr >120)
+        sampWr <- filter(.data = sampWr, Wr < 50 | Wr >150)
         sampWr <- mutate(.data = sampWr, Rows = as.numeric(as.character(Rows)) + 1)
         sampWr <- c(sampWr$Rows)
       }
@@ -1000,7 +1039,7 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
       errorTableAge <- rbind(errorTableAge, okay)
       
     
-    # Gear.Code is one from established list##########################
+    # Gear is one from established list##########################
     ageData$invalidGearAge <- ageData$Gear %in% gearCodes$Gear.Code
     invalidGearAge <- filter(.data = ageData, invalidGearAge == "FALSE")
     ageData <- ageData()
@@ -1058,13 +1097,17 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
       sampleDataTLAge <- filter(ageData(), !is.na(TLmm))
       unusualTLAge <- left_join(sampleDataTLAge, minMaxTL, by= "Species.Code") %>%  
                   mutate(TLmm = as.numeric(as.character(TLmm)))%>% #some files pull this in as factor and can't use > and < then
-                  filter(TLmm < minTL | TLmm > maxTL)
-        if(nrow(unusualTLAge)==0){
-          okay <- c("Abnormally large or small TL", "Okay")
-        }else{
-          okay <- c("Abnormally large or small TL", "Error")
-        }
-        errorTableAge <- rbind(errorTableAge, okay)
+                  filter((Gear == 10 & TLmm > maxTL) | (Gear != 10 & (TLmm < minTL | TLmm > maxTL))) %>% 
+        #next 2 lines skip any row marked verified (needed to replace NA's as filter won't work with NA's)
+        mutate(Verified.TL = case_when(is.na(Verified.TL) ~ "notVerif")) %>% 
+          filter(Verified.TL != "verified" | Verified.TL != "Verified")
+      
+      if(nrow(unusualTLAge)==0){
+        okay <- c("Abnormally large or small TL", "Okay")
+      }else{
+        okay <- c("Abnormally large or small TL", "Error")
+      }
+      errorTableAge <- rbind(errorTableAge, okay)
         
     
     ageData <- ageData()
@@ -1212,7 +1255,10 @@ output$ageError <- renderFormattable({
       unusualAgeTL <- rownames_to_column(ageData, "Rows")
       unusualAgeTL <- left_join(unusualAgeTL, minMaxTL, by= "Species.Code") %>% 
                   mutate(TLmm = as.numeric(as.character(TLmm)))%>% #some files pull this in as factor and can't use > and < then
-                  filter(TLmm < minTL | TLmm > maxTL)
+                  filter(TLmm < minTL | TLmm > maxTL) %>% 
+            #next 2 lines skip any row marked verified (needed to replace NA's as filter won't work with NA's)
+            mutate(Verified.TL = case_when(is.na(Verified.TL) ~ "notVerif")) %>% 
+            filter(Verified.TL != "verified" | Verified.TL != "Verified")
      unusualAgeTL <- unusualAgeTL %>% mutate(Rows = as.numeric(as.character(Rows)) + 1)
       c(unusualAgeTL$Rows)
     }
