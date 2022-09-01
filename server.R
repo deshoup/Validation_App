@@ -54,21 +54,30 @@ output$ageTemplate <- downloadHandler(
       return(NULL)
     } else{
       #sampleData <- read.csv(sampleData$datapath)
-      #below automatically converst blanks and "NA" to NA's...but will flagthese as needing to be ".".  Code for exporting validated file will also convert "." to NA
+      #below automatically converts blanks and "NA" to NA's...but will flag these as needing to be ".".  Code for exporting validated file will also convert "." to NA
       sampleData <- read.csv(sampleData$datapath, na.strings = c("","NA")) %>% 
                        mutate(Gear.Code = as.numeric(as.character(Gear.Code)),
                            Species.Code = as.numeric(Species.Code),
                            Number.of.individuals = as.numeric(as.character(Number.of.individuals)))
-      #create Verified.TL.Wr column if it does not exist. This will be used to mark abnormal TL/Wr values that have been verified
-      if("Verified.TL.Wr" %in% colnames(sampleData)){
-          sampleData <- sampleData %>% mutate(Verified.TL.Wr = as.character(Verified.TL.Wr))
-          sampleData$Verified.TL.Wr[sampleData$Verified.TL.Wr == ""] <- NA
-        }else{
-          sampleData$Verified.TL.Wr <- as.character(NA)
+      #create Verified.TL/Wr columns if they do not exist. This will be used to mark abnormal TL/Wr values that have been verified
+      if("Verified.TL" %in% colnames(sampleData)){
+        sampleData <- sampleData %>% mutate(Verified.TL = as.character(Verified.TL))
+        sampleData$Verified.TL[sampleData$Verified.TL == ""] <- NA
+      }else{
+        sampleData$Verified.TL <- as.character(NA)
       }
-
+      if("Verified.Wr" %in% colnames(sampleData)){
+        sampleData <- sampleData %>% mutate(Verified.Wr = as.character(Verified.Wr))
+        sampleData$Verified.Wr[sampleData$Verified.Wr == ""] <- NA
+      }else{
+        sampleData$Verified.Wr <- as.character(NA)
+      }
+      
+        #if only Verified.Wr was in original file, Verified.TL ends up being built after Verified Wr, so we need to move it
+        sampleData <- sampleData %>% relocate(Verified.TL, .before = Verified.Wr)
+      
       sampleData$Station[sampleData$Station=="."] <- NA #need this to test for missing station as this should never be blank, 
-      #(i.e., any period is an illigetimate value anyhow) but I cannot get test for blank station code to check for "." 
+      #(i.e., any period is an illegitimate value anyhow) but I cannot get test for blank station code to check for "." 
       #for some reason...so this approach fixes that issue by searching for periods and NA's simply by searching for NAs.
       
       #below code was when we had button on shiny app to convert "." to NA.  We decided to just require "." rather than blanks or NA so this is not needed and was removed
@@ -141,7 +150,9 @@ downloadSampleOK <- reactive({
                 sampleData$SampleID <- paste(sampleData$Lake.Code, sampleData$Station, sampleData$Month,
                                              sampleData$Day, sampleData$Year, sampleData$Gear.Code,
                                              sep = "")
-                sampleData <- sampleData[,c(1,19,2:18)]
+                # sampleData <- sampleData[,c(1,19,2:18)] #original
+                # sampleData <- sampleData[,c(1,20,2:18,19)] #with combined Verified.TL.Wr column
+                sampleData <- sampleData[,c(1,21,2:20)] #with separate Verified.TL & .Wr column
                 write.csv(sampleData, file, row.names = FALSE)
               }
             )
@@ -252,7 +263,7 @@ output$sampleDataDisplayTable <- DT::renderDT(sampleDataDisplay(), editable = TR
 #creates table for display of Age data at bottom of pg that can be filtered for errors...includes calculated Wr
 #
 #Below code is not working...comments on ui.R file, but something causing error where mutate trying to operate
-#on Gear.Code when the df is empty.  I'm dissabling for now (I was in the process of building this table for
+#on Gear.Code when the df is empty.  I'm disabling for now (I was in the process of building this table for
 #the first time...it has never worked despite the one on the sample validation tab working fine)
 ageDataDisplay<- reactive({
   req(ageData())
@@ -599,8 +610,8 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
                   mutate(TL_mm = as.numeric(as.character(TL_mm)))%>% #some files pull this in as factor and can't use > and < then
                   filter((Gear.Code == 10 & TL_mm > maxTL) | (Gear.Code!=10 & (TL_mm < minTL | TL_mm > maxTL))) %>% 
             #next 2 lines skip any row marked verified (needed to replace NA's as filter won't work with NA's)
-            mutate(Verified.TL.Wr = case_when(is.na(Verified.TL.Wr) ~ "notVerif")) %>% 
-              filter(Verified.TL.Wr != "verified" | Verified.TL.Wr != "Verified")
+            mutate(Verified.TL = case_when(is.na(Verified.TL) | Verified.TL == "."  ~ "notVerif")) %>% 
+              filter(Verified.TL != "verified" | Verified.TL != "Verified")
                 
         if(nrow(unusualTL)==0){
           okay <- c("Abnormally large or small TL", "Okay")
@@ -635,8 +646,8 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
         sampleData$Wr <- wrAdd(as.numeric(as.character(Wt_g)) ~ as.numeric(as.character(TL_mm)) + wsname, units = "metric", data = sampleData)
         invalidWr <- filter(.data = sampleData, Wr < 50 | Wr >150) %>% 
           #next 2 lines skip any row marked verified (needed to replace NA's as filter won't work with NA's)
-          mutate(Verified.TL.Wr = case_when(is.na(Verified.TL.Wr) ~ "notVerif")) %>% 
-            filter(Verified.TL.Wr != "verified" | Verified.TL.Wr != "Verified")
+          mutate(Verified.Wr = case_when(is.na(Verified.Wr) | Verified.Wr == "." ~ "notVerif")) %>% 
+            filter(Verified.Wr != "verified" | Verified.Wr != "Verified")
         
         if(nrow(invalidWr) == 0){
           # okay <- c("Invalid Relative Weight", "Okay")
@@ -908,8 +919,8 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
                   mutate(TL_mm = as.numeric(as.character(TL_mm)))%>% #some files pull this in as factor and can't use > and < then
                   filter(TL_mm < minTL | TL_mm > maxTL) %>% 
         #next 2 lines skip any row marked verified (needed to replace NA's as filter won't work with NA's)
-        mutate(Verified.TL.Wr = case_when(is.na(Verified.TL.Wr) ~ "notVerif")) %>% 
-          filter(Verified.TL.Wr != "verified" | Verified.TL.Wr != "Verified")
+        mutate(Verified.TL = case_when(is.na(Verified.TL) | Verified.TL == "."  ~ "notVerif")) %>% 
+          filter(Verified.TL != "verified" | Verified.TL != "Verified")
       
       unusualTL <- unusualTL %>% mutate(Rows = as.numeric(as.character(Rows)) + 1)
       c(unusualTL$Rows)
@@ -933,14 +944,15 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
       sampleData <- join(sampleData, WSnames, by = "Species.Code")
       sampleData <- filter(sampleData, !is.na(TL_mm) & !is.na(Wt_g) & !is.na(wsname)) %>% 
         #next 2 lines skip any row marked verified (needed to replace NA's as filter won't work with NA's)
-        mutate(Verified.TL.Wr = case_when(is.na(Verified.TL.Wr) ~ "notVerif")) %>% 
-          filter(Verified.TL.Wr != "verified" | Verified.TL.Wr != "Verified")
+        mutate(Verified.Wr = case_when(is.na(Verified.Wr) | Verified.Wr == "." ~ "notVerif")) %>% 
+          filter(Verified.Wr != "verified" | Verified.Wr != "Verified")
       
       if(nrow(sampleData) == 0){
         # sampWr <- "Okay"
         sampWr <- NULL
       } else{
-        sampleData$Wr <- wrAdd(as.numeric(as.character(Wt_g)) ~ as.numeric(as.character(TL_mm)) + wsname, units = "metric", data = sampleData)
+        sampleData$Wr <- wrAdd(as.numeric(as.character(Wt_g)) ~ as.numeric(
+          as.character(TL_mm)) + wsname, units = "metric", data = sampleData)
         sampWr <- sampleData
         sampWr <- filter(.data = sampWr, Wr < 50 | Wr >150)
         sampWr <- mutate(.data = sampWr, Rows = as.numeric(as.character(Rows)) + 1)
@@ -1099,7 +1111,7 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
                   mutate(TLmm = as.numeric(as.character(TLmm)))%>% #some files pull this in as factor and can't use > and < then
                   filter((Gear == 10 & TLmm > maxTL) | (Gear != 10 & (TLmm < minTL | TLmm > maxTL))) %>% 
         #next 2 lines skip any row marked verified (needed to replace NA's as filter won't work with NA's)
-        mutate(Verified.TL = case_when(is.na(Verified.TL) ~ "notVerif")) %>% 
+        mutate(Verified.TL = case_when(is.na(Verified.TL) | Verified.TL == "."   ~ "notVerif")) %>% 
           filter(Verified.TL != "verified" | Verified.TL != "Verified")
       
       if(nrow(unusualTLAge)==0){
@@ -1257,7 +1269,7 @@ output$ageError <- renderFormattable({
                   mutate(TLmm = as.numeric(as.character(TLmm)))%>% #some files pull this in as factor and can't use > and < then
                   filter(TLmm < minTL | TLmm > maxTL) %>% 
             #next 2 lines skip any row marked verified (needed to replace NA's as filter won't work with NA's)
-            mutate(Verified.TL = case_when(is.na(Verified.TL) ~ "notVerif")) %>% 
+            mutate(Verified.TL = case_when(is.na(Verified.TL) | Verified.TL == "." ~ "notVerif")) %>% 
             filter(Verified.TL != "verified" | Verified.TL != "Verified")
      unusualAgeTL <- unusualAgeTL %>% mutate(Rows = as.numeric(as.character(Rows)) + 1)
       c(unusualAgeTL$Rows)
@@ -1299,7 +1311,7 @@ output$ageError <- renderFormattable({
     }
   )
   
-  # Downloadable csv of gear codes
+  # Downloadable csv of species codes
   output$sppCodeList <- downloadHandler(
     filename = function() {
       paste("sppCodes", "csv", sep = ".")
