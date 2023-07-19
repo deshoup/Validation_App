@@ -131,6 +131,15 @@ downloadSampleOK <- reactive({
   }
 })
 
+lakeYrGear <- reactive({
+  sampleData <- sampleData()
+  lake <- sampleData$Lake.Code[1]
+  yr <- sampleData$Year[1]
+  gear <- sampleData$Gear.Code[1]
+  paste(lake, yr, gear, sep="_")
+})
+
+
 # Download validated sample data
     #remove download button if data not valid
     observe({
@@ -141,7 +150,7 @@ downloadSampleOK <- reactive({
             enable("valSampleData")
             output$valSampleData <- downloadHandler(
               filename = function() {
-                paste(date(), "validatedSample.csv", sep = ".")
+                paste(lakeYrGear(), "_Sample_","validated_", date(), ".csv", sep = "")
               },
               content = function(file) {
                 sampleData <- sampleData()
@@ -150,8 +159,6 @@ downloadSampleOK <- reactive({
                 sampleData$SampleID <- paste(sampleData$Lake.Code, sampleData$Station, sampleData$Month,
                                              sampleData$Day, sampleData$Year, sampleData$Gear.Code,
                                              sep = "")
-                # sampleData <- sampleData[,c(1,19,2:18)] #original
-                # sampleData <- sampleData[,c(1,20,2:18,19)] #with combined Verified.TL.Wr column
                 sampleData <- sampleData[,c(1,21,2:20)] #with separate Verified.TL & .Wr column
                 write.csv(sampleData, file, row.names = FALSE)
               }
@@ -163,30 +170,12 @@ downloadSampleOK <- reactive({
                   Please edit the csv file and test it again.  You will be able to download once it passes
                   the required validation tests.")
           }
-          # output$valSampleData <- downloadHandler(
-          #   filename = function() {
-          #     paste(date(), "validatedSample.csv", sep = ".")
-          #   },
-          #   content = function(file) {
-          #     sampleData <- sampleData()
-          #     sampleData[sampleData == "."] <- NA #Automatically convert period to NA's
-          #     sampleData[sampleData == "NA"] <- NA
-          #     sampleData$SampleID <- paste(sampleData$Lake.Code, sampleData$Station, sampleData$Month,
-          #                                  sampleData$Day, sampleData$Year, sampleData$Gear.Code,
-          #                                  sep = "")
-          #     sampleData <- sampleData[,c(1,19,2:18)]
-          #     write.csv(sampleData, file, row.names = FALSE)
-          #   }
-          # )
         }
       })
 
     
 #Test Age data to see if safe to download
 downloadAgeOK <- reactive({
-  # validateAge <- validateAge() %>% filter(Error != "Abnormally large or small TL")
-          #we originally omitted invalid "abnormal" sized fish and allowed download (above code).  
-          #I'm removing this now that we have vefication step
   validateAge <- validateAge() 
   errors <- as.character(validateAge$Status)
   if("Error" %in% errors){
@@ -197,6 +186,16 @@ downloadAgeOK <- reactive({
 })
 
 # Download Age sample data
+
+#function to make naming downloaded file easier
+LkYrGrSp <- reactive({
+  ageData <- ageData()
+  lake <- ageData$Lake.Code[1]
+  yr <- ageData$Year[1]
+  gear <- ageData$Gear[1]
+  spp <- ageData$Species.Code[1]
+  paste(lake, yr, gear, spp, sep="_")
+})
     #remove download button if data not valid
     observe({
       if(is.null(validateAge())){
@@ -206,7 +205,7 @@ downloadAgeOK <- reactive({
             enable("valAgeData")
             output$valAgeData <- downloadHandler(
               filename = function() {
-                paste(date(), "validatedAge.csv", sep = ".")
+                paste(LkYrGrSp(), "_Age_", "validated_", date(), ".csv", sep = "")
               },
               content = function(file) {
                 ageData <- ageData()
@@ -297,7 +296,7 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
       colnames(errorTable) <- c("Error", "Status")
       errorTable <- errorTable
       
-      #test column names and order ################################
+    #test column names and order ################################
       #creates a data frame of the column names in order 
         columnTemplate <- data.frame(colNames = colnames(read.csv("sampleTemplate.csv")))
         columnNames <- data.frame(colNames = colnames(sampleData()))
@@ -309,7 +308,7 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
         }
       errorTable <- rbind(errorTable, okay)
       
-      # Check if blank cells exist###########################################
+    # Check if blank cells exist###########################################
       sampleData <- sampleData()
       #sampleData$invalidBlanks <- apply(sampleData=="EMPTY", 1, which)#identifies columns with blanks on each row
         #problem with above line...if no blanks exist, it does not produce the column...not sure why.
@@ -336,7 +335,7 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
       errorTable <- filter(.data = errorTable, Error != "0")
       sampleData <- sampleData()
       
-      # Check if Lake.Code is consistent with defined codes, and not null##########    
+    # Check if Lake.Code is consistent with defined codes, and not null##########    
       sampleData$invalidLake <- sampleData$Lake.Code %in% lakeCodes$Lake.Code
       invalidLake <- filter(.data = sampleData, invalidLake == "FALSE")
       
@@ -350,7 +349,7 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
       
       sampleData <- sampleData()
       
-      # Check if Station is not null (required field)#############################
+    # Check if Station is not null (required field)#############################
       sampleData$nullStation <- lapply(sampleData$Station, is.na)
       sampleData$nullStation[sampleData$Station=="."] <-  TRUE
       nullStation <- filter(.data = sampleData, nullStation == "TRUE")
@@ -362,7 +361,7 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
       }
       errorTable <- rbind(errorTable, okay)
       
-      #test if there are more time codes than station values suggesting bad station ID's
+    #test if there are more time codes than station values suggesting bad station ID's
       stationTimeCount <- sampleData() %>% group_by(Lake.Code, Gear.Code, Year, Month, Day) %>% summarize(Time=n_distinct(Time), 
                                                                    Station=n_distinct(Station))
       badSationTimeCount <- stationTimeCount %>% filter(Time > Station)
@@ -374,7 +373,7 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
       }
       errorTable <- rbind(errorTable, okay)
       
-      # Check if Month is within acceptable options (integer 1-12; Required Field)#
+    # Check if Month is within acceptable options (integer 1-12; Required Field)#
       sampleData <- sampleData()
       sampleData$invalidMonth <- sampleData$Month %in% c(seq(1,12,1))
       invalidMonth <- filter(.data = sampleData, invalidMonth == "FALSE")
@@ -387,7 +386,7 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
       errorTable <- rbind(errorTable, okay)
       sampleData <- sampleData()
       
-      # Check if Day is within acceptable options (integer 1-31; Required Field)#
+    # Check if Day is within acceptable options (integer 1-31; Required Field)#
       sampleData$invalidDay <- sampleData$Day %in% c(seq(1,31,1))
       invalidDay <- filter(.data = sampleData, invalidDay == "FALSE")
       
@@ -399,7 +398,7 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
       errorTable <- rbind(errorTable, okay)
       sampleData <- sampleData()
       
-      # Check if Year is within acceptable options (integer 1980-current year; Required Field)#
+    # Check if Year is within acceptable options (integer 1980-current year; Required Field)#
       sampleData$invalidYear <- sampleData$Year %in% c(seq(1980,as.integer(format(Sys.Date(), "%Y")),1))
       invalidYear <- filter(.data = sampleData, invalidYear == "FALSE")
       
@@ -410,7 +409,7 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
       }
       errorTable <- rbind(errorTable, okay)
       
-      #test month, day, & year make a legitimate date
+    #test month, day, & year make a legitimate date
       DateData <- sampleData()
       DateData$Date <- as.Date(paste(DateData$Month, DateData$Day, DateData$Year,sep="-"),format="%m-%d-%Y")
       DateData$Date[DateData$Date<1980-01-01] <- NA #don't allow dates before first ODWC data in 1980
@@ -433,8 +432,8 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
         okay <- c("One Gear Code", "Okay")
         errorTable <- rbind(errorTable, okay)
         
-        # If only one Gear.Code, proceed to check if it is an established Gear.Code and check Gear.Length 
-        # Gear.Code is one from established list##########################
+      # If only one Gear.Code, proceed to check if it is an established Gear.Code and check Gear.Length 
+      # Gear.Code is one from established list##########################
         sampleData$invalidGear <- sampleData$Gear.Code %in% gearCodes$Gear.Code
         invalidGear <- filter(.data = sampleData, invalidGear == "FALSE")
         sampleData <- sampleData()
@@ -558,7 +557,7 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
       }
       sampleData <- sampleData()
       
-      # Check if species codes are consistent with defined codes, and not null###############
+    # Check if species codes are consistent with defined codes, and not null###############
       sampleData$invalidSpp <- sampleData$Species.Code %in% speciesCodes$Species.Code
       invalidSpp <- filter(.data = sampleData, invalidSpp == "FALSE")
       
@@ -570,7 +569,7 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
       errorTable <- rbind(errorTable, okay)
       sampleData <- sampleData()
       
-      # Check if Number of individuals is not 0 and not null #########################
+    # Check if Number of individuals is not 0 and not null #########################
       # if(sampleData$Species.Code==98){
       #   invalidNOI <- NA
       #   sampleData$NAnoi <- FALSE 
@@ -594,7 +593,7 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
       sampleData <- sampleData()
 
       
-      # TL_mm or Wt_g must not = 0...(should be null)####################################################
+    # TL_mm must not = 0...(should be null)####################################################
       invalidTL <- filter(.data = sampleData, TL_mm == 0)
       
       if(nrow(invalidTL) == 0){
@@ -604,14 +603,14 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
       }
       errorTable <- rbind(errorTable, okay)
       
-     #Test TL for min and max values########################################
+   #Test TL for min and max values########################################
       sampleDataTL <- filter(sampleData(), !is.na(TL_mm))
       unusualTL <- left_join(sampleDataTL, minMaxTL, by= "Species.Code") %>% 
                   mutate(TL_mm = as.numeric(as.character(TL_mm)))%>% #some files pull this in as factor and can't use > and < then
                   filter((Gear.Code == 10 & TL_mm > maxTL) | (Gear.Code!=10 & (TL_mm < minTL | TL_mm > maxTL))) %>% 
             #next 2 lines skip any row marked verified (needed to replace NA's as filter won't work with NA's)
-            mutate(Verified.TL = case_when(is.na(Verified.TL) | Verified.TL == "."  ~ "notVerif")) %>% 
-              filter(Verified.TL != "verified" | Verified.TL != "Verified")
+            mutate(Verified.TL = case_when(is.na(Verified.TL) | Verified.TL == "."  ~ "notVerif", TRUE~Verified.TL)) %>% 
+              filter(Verified.TL != "verified" & Verified.TL != "Verified")
                 
         if(nrow(unusualTL)==0){
           okay <- c("Abnormally large or small TL", "Okay")
@@ -621,7 +620,20 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
         errorTable <- rbind(errorTable, okay)
         
         
-      # TL_mm or Wt_g must not = 0...(should be null)####################################################
+        sampleDataTL <- read.csv(
+          "C:/Users/desho/Documents/Research/ODWC data and reports/Shiny app/Training/2022 Texoma SSP training/App files to upload/Example data files/AA-TEXOMA.2021.23.sampledata4b.csv"
+        )
+    #Test that TL is an integer with no decimal places##################################
+      non_integerTL <- sampleDataTL %>% filter(TL_mm != ".") %>% 
+          mutate(roundTL = round(as.numeric(TL_mm),0)) %>% filter(roundTL!=TL_mm)
+        if(nrow(non_integerTL)==0){
+          okay <- c("TL must be whole number", "Okay")
+        }else{
+          okay <- c("TL must be whole number", "Error")
+        }
+        errorTable <- rbind(errorTable, okay)
+        
+    # Wt_g must not = 0...(should be null)####################################################
       invalidWt <- sampleData() %>% filter(Wt_g == 0)
       
       if(nrow(invalidWt) == 0){
@@ -632,7 +644,7 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
       errorTable <- rbind(errorTable, okay)
         
       
-      # Relative weight between 50 and 150...indicates abnormal length-weight combination############
+    # Relative weight between 50 and 150...indicates abnormal length-weight combination############
           #used to be 20 and 200, but SSP committee tightened to this as a check of abnormally heavy
           #or light fish...went to 60 and 120, but that was too restrictive
       sampleData <- join(sampleData, WSnames, by = "Species.Code")
@@ -646,8 +658,8 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
         sampleData$Wr <- wrAdd(as.numeric(as.character(Wt_g)) ~ as.numeric(as.character(TL_mm)) + wsname, units = "metric", data = sampleData)
         invalidWr <- filter(.data = sampleData, Wr < 50 | Wr >150) %>% 
           #next 2 lines skip any row marked verified (needed to replace NA's as filter won't work with NA's)
-          mutate(Verified.Wr = case_when(is.na(Verified.Wr) | Verified.Wr == "." ~ "notVerif")) %>% 
-            filter(Verified.Wr != "verified" | Verified.Wr != "Verified")
+          mutate(Verified.Wr = case_when(is.na(Verified.Wr) | Verified.Wr == "." ~ "notVerif", TRUE ~Verified.Wr)) %>% 
+            filter(Verified.Wr != "verified" & Verified.Wr != "Verified")
         
         if(nrow(invalidWr) == 0){
           # okay <- c("Invalid Relative Weight", "Okay")
@@ -678,11 +690,21 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
   
   
 # Return row numbers of errors with checkbox inputs for sample data#####################
-# This is a bit inefficient as it basically jsut reruns the same code that was used above to build the error
-# table (in the validateSample() reactive statement) to find the offending row number.  We shoudl make each
+# This is a bit inefficient as it basically just reruns the same code that was used above to build the error
+# table (in the validateSample() reactive statement) to find the offending row number.  We should make each
 # of these blocks of code (i.e., the validation tests) a separate reactive function, then each of these reactive
 # statements could be called above in validateSample() and here in the needed renderText statements.  Would save
 # a lot of lines of code and prevent the program from having to run the same code multiple times.
+
+#pattern for below is as follows:
+  #1) test if statement tests if check box from ui.R has been checked
+  #2) reads in SampleData, adds row names as a column, and does whatever calculations are needed
+    #to test for the validation rule
+  #3)filter to offending rows
+  #4)return the row number column values as renderText value to return...this is stored in the output
+    #and is called in code next to the check box in ui.R to display the row numbers if the box is checked.
+
+
   output$Blanks <- renderText({
     if(input$Blanks == TRUE){
       sampleData <- sampleData()
@@ -926,6 +948,16 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
       c(unusualTL$Rows)
     }
   })
+
+  output$integerTL <- renderText({
+    if(input$integerTL == TRUE){
+      sampleData <- sampleData()
+      non_integerTL <- rownames_to_column(sampleData, "Rows") %>% filter(TL_mm!=".") %>% 
+          mutate(roundTL = round(as.numeric(TL_mm),0)) %>% filter(roundTL!=TL_mm) %>% 
+          mutate(.data = non_integerTL, Rows = as.numeric(as.character(Rows)) + 1)
+      c(non_integerTL$Rows)
+    }
+  })
   
   output$sampWt <- renderText({
     if(input$sampWt == TRUE){
@@ -966,178 +998,189 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
 # Run age data validation function when action button pressed#####################
   
   validateAge <- reactive({
-    
-    req(ageData())
-    errorTableAge <- data.frame(0, "Okay", stringsAsFactors = FALSE)
-    colnames(errorTableAge) <- c("Error", "Status")
-    errorTableAge <- errorTableAge
-    
-    #test column names and order ################################
-      #creates a data frame of the column names in order
-        columnTemplateAge <- data.frame(colNames = colnames(read.csv("ageTemplate.csv")))
-        columnNamesAge <- data.frame(colNames = colnames(ageData()))
-      #test if same names and same order (row order is now the list of columns in order)
-        if(all_equal(columnTemplateAge, columnNamesAge, ignore_row_order = F) != TRUE){
-          okay <- c("Correct column names and order", "Error")
-        }else{
-          okay <- c("Correct column names and order", "Okay")
-        }
-      errorTableAge <- rbind(errorTableAge, okay)
-    
-    ageData <- ageData()
-    
-    # Check if Lake.Code is consistent with defined codes, and not null##########    
-    ageData$invalidLakeAge <- ageData$Lake.Code %in% lakeCodes$Lake.Code
-    invalidLakeAge <- filter(.data = ageData, invalidLakeAge == "FALSE")
-    
-    if(nrow(invalidLakeAge) == 0){
-      okay <- c("Invalid Lake Code", "Okay")
-    } else{
-      okay <- c("Invalid Lake Code", "Error")
-    }
-    errorTableAge <- rbind(errorTableAge, okay)
-    errorTableAge <- filter(.data = errorTableAge, Error != "0")
-    
-    ageData <- ageData()
-    
-    # Check if Month is within acceptable options (integer 1-12; Required Field)#
-    ageData$invalidMonthAge <- ageData$Month %in% c(seq(1,12,1))
-    invalidMonthAge <- filter(.data = ageData, invalidMonthAge == "FALSE")
-    
-    if(nrow(invalidMonthAge) == 0){
-      okay <- c("Invalid Month", "Okay")
-    } else{
-      okay <- c("Invalid Month", "Error")
-    }
-    errorTableAge <- rbind(errorTableAge, okay)
-    ageData <- ageData()
-    
-    # Check if Day is within acceptable options (integer 1-31; Required Field)#
-    ageData$invalidDayAge <- ageData$Day %in% c(seq(1,31,1))
-    invalidDayAge <- filter(.data = ageData, invalidDayAge == "FALSE")
-    
-    if(nrow(invalidDayAge) == 0){
-      okay <- c("Invalid Day", "Okay")
-    } else{
-      okay <- c("Invalid Day", "Error")
-    }
-    errorTableAge <- rbind(errorTableAge, okay)
-    ageData <- ageData()
-    
-    # Check if Year is within acceptable options (integer 1980-current year; Required Field)#
-    ageData$invalidYearAge <- ageData$Year %in% c(seq(1980,as.integer(format(Sys.Date(), "%Y")),1)) 
-    invalidYearAge <- filter(.data = ageData, invalidYearAge == "FALSE")
-    
-    if(nrow(invalidYearAge) == 0){
-      okay <- c("Invalid Year", "Okay")
-    } else{
-      okay <- c("Invalid Year", "Error")
-    }
-    errorTableAge <- rbind(errorTableAge, okay)
-    ageData <- ageData()
-  
-    #test month, day, & year make a legitimate date
-      DateDataAge <- ageData()
-      DateDataAge$Date <- as.Date(paste(DateDataAge$Month, DateDataAge$Day, DateDataAge$Year,sep="-"),format="%m-%d-%Y")
-      DateDataAge$Date[DateDataAge$Date<1980-01-01] <- NA #don't allow dates before first ODWC data in 1980
-      DateDataAge$Date[DateDataAge$Date>as.Date(format(Sys.Date(), "%Y-%m-%d"))] <- NA #don't allow dates in the future
-      invalidDate <- DateDataAge %>% filter(is.na(Date))
-
-      if(nrow(invalidDate) == 0){
-        okay <- c("Year, month, & day make valid date", "Okay")
+      
+      req(ageData())
+      errorTableAge <- data.frame(0, "Okay", stringsAsFactors = FALSE)
+      colnames(errorTableAge) <- c("Error", "Status")
+      errorTableAge <- errorTableAge
+      
+      #test column names and order ################################
+        #creates a data frame of the column names in order
+          columnTemplateAge <- data.frame(colNames = colnames(read.csv("ageTemplate.csv")))
+          columnNamesAge <- data.frame(colNames = colnames(ageData()))
+        #test if same names and same order (row order is now the list of columns in order)
+          if(all_equal(columnTemplateAge, columnNamesAge, ignore_row_order = F) != TRUE){
+            okay <- c("Correct column names and order", "Error")
+          }else{
+            okay <- c("Correct column names and order", "Okay")
+          }
+        errorTableAge <- rbind(errorTableAge, okay)
+      
+      ageData <- ageData()
+      
+      # Check if Lake.Code is consistent with defined codes, and not null##########    
+      ageData$invalidLakeAge <- ageData$Lake.Code %in% lakeCodes$Lake.Code
+      invalidLakeAge <- filter(.data = ageData, invalidLakeAge == "FALSE")
+      
+      if(nrow(invalidLakeAge) == 0){
+        okay <- c("Invalid Lake Code", "Okay")
       } else{
-        okay <- c("Year, month, & day make valid date", "Error")
+        okay <- c("Invalid Lake Code", "Error")
       }
       errorTableAge <- rbind(errorTableAge, okay)
+      errorTableAge <- filter(.data = errorTableAge, Error != "0")
       
-    
-    # Gear is one from established list##########################
-    ageData$invalidGearAge <- ageData$Gear %in% gearCodes$Gear.Code
-    invalidGearAge <- filter(.data = ageData, invalidGearAge == "FALSE")
-    ageData <- ageData()
-    
-    if(nrow(invalidGearAge) == 0){
-      okay <- c("Invalid Gear Code", "Okay")
-    } else{
-      okay <- c("Invalid Gear Code", "Error")
-    }
-    errorTableAge <- rbind(errorTableAge, okay)
-    ageData <- ageData()
-    
-    # Check if species codes are consistent with defined codes, and not null###############
-    ageData$invalidSppAge <- ageData$Species.Code %in% speciesCodes$Species.Code
-    invalidSppAge <- filter(.data = ageData, invalidSppAge == "FALSE")
-    
-    if(nrow(invalidSppAge) == 0){
-      okay <- c("Invalid Species Code", "Okay")
-    } else{
-      okay <- c("Invalid Species Code", "Error")
-    }
-    errorTableAge <- rbind(errorTableAge, okay)
-    ageData <- ageData()
-    
-    # Check if Number of individuals is not 0 and not null #########################
-    invalidNOIAge <- filter(.data = ageData, Number.of.individuals < 1)
-    ageData$NAnoiAge <- lapply(ageData$Number.of.individuals, is.na)
-    NAnoiAge <- filter(.data = ageData, NAnoiAge == "TRUE")
-    NAnoiAge <- NAnoiAge[,-10]
-    invalidNOIAge <- rbind(invalidNOIAge, NAnoiAge)
-    
-    if(nrow(invalidNOIAge) == 0){
-      okay <- c("Invalid Number of individuals", "Okay")
-    } else{
-      okay <- c("Invalid Number of individuals", "Error")
-    }
-    errorTableAge <- rbind(errorTableAge, okay)
-    ageData <- ageData()
-    
-    # TLmm must not = 0...(should be null)####################################################
-    invalidTLAge <- filter(.data = ageData, TLmm == 0)
-    ageData$NATLAge <- lapply(ageData$TLmm, is.na)
-    NATLAge <- filter(.data = ageData, NATLAge == "TRUE")
-    NATLAge <- NATLAge[,-10]
-    invalidTLAge <- rbind(invalidTLAge, NATLAge)
-    
-    if(nrow(invalidTLAge) == 0){
-      okay <- c("Invalid Total Length", "Okay")
-    } else{
-      okay <- c("Invalid Total Length", "Error")
-    }
-    errorTableAge <- rbind(errorTableAge, okay)
-    
-    #Test TL for min and max values########################################
-      sampleDataTLAge <- filter(ageData(), !is.na(TLmm))
-      unusualTLAge <- left_join(sampleDataTLAge, minMaxTL, by= "Species.Code") %>%  
-                  mutate(TLmm = as.numeric(as.character(TLmm)))%>% #some files pull this in as factor and can't use > and < then
-                  filter((Gear == 10 & TLmm > maxTL) | (Gear != 10 & (TLmm < minTL | TLmm > maxTL))) %>% 
-        #next 2 lines skip any row marked verified (needed to replace NA's as filter won't work with NA's)
-        mutate(Verified.TL = case_when(is.na(Verified.TL) | Verified.TL == "."   ~ "notVerif")) %>% 
-          filter(Verified.TL != "verified" | Verified.TL != "Verified")
+      ageData <- ageData()
       
-      if(nrow(unusualTLAge)==0){
-        okay <- c("Abnormally large or small TL", "Okay")
-      }else{
-        okay <- c("Abnormally large or small TL", "Error")
+      # Check if Month is within acceptable options (integer 1-12; Required Field)#
+      ageData$invalidMonthAge <- ageData$Month %in% c(seq(1,12,1))
+      invalidMonthAge <- filter(.data = ageData, invalidMonthAge == "FALSE")
+      
+      if(nrow(invalidMonthAge) == 0){
+        okay <- c("Invalid Month", "Okay")
+      } else{
+        okay <- c("Invalid Month", "Error")
       }
       errorTableAge <- rbind(errorTableAge, okay)
+      ageData <- ageData()
+      
+      # Check if Day is within acceptable options (integer 1-31; Required Field)#
+      ageData$invalidDayAge <- ageData$Day %in% c(seq(1,31,1))
+      invalidDayAge <- filter(.data = ageData, invalidDayAge == "FALSE")
+      
+      if(nrow(invalidDayAge) == 0){
+        okay <- c("Invalid Day", "Okay")
+      } else{
+        okay <- c("Invalid Day", "Error")
+      }
+      errorTableAge <- rbind(errorTableAge, okay)
+      ageData <- ageData()
+      
+      # Check if Year is within acceptable options (integer 1980-current year; Required Field)#
+      ageData$invalidYearAge <- ageData$Year %in% c(seq(1980,as.integer(format(Sys.Date(), "%Y")),1)) 
+      invalidYearAge <- filter(.data = ageData, invalidYearAge == "FALSE")
+      
+      if(nrow(invalidYearAge) == 0){
+        okay <- c("Invalid Year", "Okay")
+      } else{
+        okay <- c("Invalid Year", "Error")
+      }
+      errorTableAge <- rbind(errorTableAge, okay)
+      ageData <- ageData()
+    
+      #test month, day, & year make a legitimate date
+        DateDataAge <- ageData()
+        DateDataAge$Date <- as.Date(paste(DateDataAge$Month, DateDataAge$Day, DateDataAge$Year,sep="-"),format="%m-%d-%Y")
+        DateDataAge$Date[DateDataAge$Date<1980-01-01] <- NA #don't allow dates before first ODWC data in 1980
+        DateDataAge$Date[DateDataAge$Date>as.Date(format(Sys.Date(), "%Y-%m-%d"))] <- NA #don't allow dates in the future
+        invalidDate <- DateDataAge %>% filter(is.na(Date))
+  
+        if(nrow(invalidDate) == 0){
+          okay <- c("Year, month, & day make valid date", "Okay")
+        } else{
+          okay <- c("Year, month, & day make valid date", "Error")
+        }
+        errorTableAge <- rbind(errorTableAge, okay)
         
-    
-    ageData <- ageData()
-    
-    # Check if Age is within acceptable options (integer 0-40; Required Field)#
-    ageData$invalidAge <- ageData$Age %in% c(seq(0,40,1))
-    invalidAge <- filter(.data = ageData, invalidAge == "FALSE")
-    
-    if(nrow(invalidAge) == 0){
-      okay <- c("Invalid Age", "Okay")
-    } else{
-      okay <- c("Invalid Age", "Error")
-    }
-    errorTableAge <- rbind(errorTableAge, okay)
-    ageData <- ageData()
-    
-    errorTableAge
+      
+      # Gear is one from established list##########################
+      ageData$invalidGearAge <- ageData$Gear %in% gearCodes$Gear.Code
+      invalidGearAge <- filter(.data = ageData, invalidGearAge == "FALSE")
+      ageData <- ageData()
+      
+      if(nrow(invalidGearAge) == 0){
+        okay <- c("Invalid Gear Code", "Okay")
+      } else{
+        okay <- c("Invalid Gear Code", "Error")
+      }
+      errorTableAge <- rbind(errorTableAge, okay)
+      ageData <- ageData()
+      
+      # Check if species codes are consistent with defined codes, and not null###############
+      ageData$invalidSppAge <- ageData$Species.Code %in% speciesCodes$Species.Code
+      invalidSppAge <- filter(.data = ageData, invalidSppAge == "FALSE")
+      
+      if(nrow(invalidSppAge) == 0){
+        okay <- c("Invalid Species Code", "Okay")
+      } else{
+        okay <- c("Invalid Species Code", "Error")
+      }
+      errorTableAge <- rbind(errorTableAge, okay)
+      ageData <- ageData()
+      
+      # Check if Number of individuals is not 0 and not null #########################
+      invalidNOIAge <- filter(.data = ageData, Number.of.individuals < 1)
+      ageData$NAnoiAge <- lapply(ageData$Number.of.individuals, is.na)
+      NAnoiAge <- filter(.data = ageData, NAnoiAge == "TRUE")
+      NAnoiAge <- NAnoiAge[,-10]
+      invalidNOIAge <- rbind(invalidNOIAge, NAnoiAge)
+      
+      if(nrow(invalidNOIAge) == 0){
+        okay <- c("Invalid Number of individuals", "Okay")
+      } else{
+        okay <- c("Invalid Number of individuals", "Error")
+      }
+      errorTableAge <- rbind(errorTableAge, okay)
+      ageData <- ageData()
+      
+      # TLmm must not = 0...(should be null)####################################################
+      invalidTLAge <- filter(.data = ageData, TLmm == 0)
+      ageData$NATLAge <- lapply(ageData$TLmm, is.na)
+      NATLAge <- filter(.data = ageData, NATLAge == "TRUE")
+      NATLAge <- NATLAge[,-10]
+      invalidTLAge <- rbind(invalidTLAge, NATLAge)
+      
+      if(nrow(invalidTLAge) == 0){
+        okay <- c("Invalid Total Length", "Okay")
+      } else{
+        okay <- c("Invalid Total Length", "Error")
+      }
+      errorTableAge <- rbind(errorTableAge, okay)
+      
+      #Test TL for min and max values########################################
+        sampleDataTLAge <- filter(ageData(), !is.na(TLmm))
+        unusualTLAge <- left_join(sampleDataTLAge, minMaxTL, by= "Species.Code") %>%  
+                    mutate(TLmm = as.numeric(as.character(TLmm)))%>% #some files pull this in as factor and can't use > and < then
+                    filter((Gear == 10 & TLmm > maxTL) | (Gear != 10 & (TLmm < minTL | TLmm > maxTL))) %>% 
+          #next 2 lines skip any row marked verified (needed to replace NA's as filter won't work with NA's)
+          mutate(Verified.TL = case_when(is.na(Verified.TL) | Verified.TL == "."   ~ "notVerif")) %>% 
+            filter(Verified.TL != "verified" | Verified.TL != "Verified")
+        
+        if(nrow(unusualTLAge)==0){
+          okay <- c("Abnormally large or small TL", "Okay")
+        }else{
+          okay <- c("Abnormally large or small TL", "Error")
+        }
+        errorTableAge <- rbind(errorTableAge, okay)
+          
+      #Test that Age data TL is an integer with no decimal places##################################
+        non_integerTLAge <- ageData() %>% filter(TLmm!=".") %>% mutate(roundTL = round(as.numeric(TLmm),0)) %>% 
+          filter(roundTL!=TLmm)
+        if(nrow(non_integerTLAge)==0){
+          okay <- c("TL must be whole number", "Okay")
+        }else{
+          okay <- c("TL must be whole number", "Error")
+        }
+        errorTableAge <- rbind(errorTableAge, okay)
+        
+      
+      # Check if Age is within acceptable options (integer 0-40; Required Field)#####
+        ageData <- ageData()
+        ageData$invalidAge <- ageData$Age %in% c(seq(0,40,1))
+        invalidAge <- filter(.data = ageData, invalidAge == "FALSE")
+        
+        if(nrow(invalidAge) == 0){
+          okay <- c("Invalid Age", "Okay")
+        } else{
+          okay <- c("Invalid Age", "Error")
+        }
+        errorTableAge <- rbind(errorTableAge, okay)
+        ageData <- ageData()
+        
+        errorTableAge
+      
   })
+  
   
 # Render age error table#######################
 output$ageError <- renderFormattable({
@@ -1276,7 +1319,17 @@ output$ageError <- renderFormattable({
     }
   })
   
-  output$age <- renderText({
+   output$integerAgeTL <- renderText({
+     if(input$integerAgeTL == TRUE){
+       ageData <- ageData()
+       non_integerTL <- rownames_to_column(ageData, "Rows") %>% filter(TLmm!=".") %>% 
+         mutate(roundTL = round(as.numeric(TLmm),0)) %>% filter(roundTL!=TLmm) %>% 
+         mutate(.data = non_integerTL, Rows = as.numeric(as.character(Rows)) + 1)
+       c(non_integerTL$Rows)
+     }
+   })
+   
+   output$age <- renderText({
     if(input$age == TRUE){
       ageData <- ageData()
       ageData$invalidAge <- ageData$Age %in% c(seq(0,40,1))
@@ -1284,9 +1337,9 @@ output$ageError <- renderFormattable({
       invalidAge <- filter(.data = invalidAge, invalidAge == "FALSE")
       invalidAge <- mutate(.data = invalidAge, Rows = as.numeric(as.character(Rows)) + 1)
       c(invalidAge$Rows)
-      
     }
   })
+   
   
   
 # Validation Rule Details#################################

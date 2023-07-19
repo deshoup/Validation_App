@@ -95,7 +95,7 @@ fluidPage(
           wellPanel(
             h4(tags$b("Identify Row Numbers with Errors"), align = "center"),
             hr(),
-            checkboxInput("Blanks", "Invalid Blank Cells (should be periods)"),
+            checkboxInput("Blanks", "Invalid Blank Cells (all blank cells should be filled with periods)"),
               textOutput("Blanks"),
             checkboxInput("sampLake", "Invalid Lake Code"),
               textOutput("sampLake"),
@@ -121,11 +121,13 @@ fluidPage(
               textOutput("sampNOI"),
             checkboxInput("sampTL", "Invalid Total Length"),
               textOutput("sampTL"),
-            checkboxInput("unusualTL", "Abnormally large or small TL"),
+            checkboxInput("unusualTL", 'Abnormally large or small TL. (Correct TL if wrong, type "verified" in Verified.TL column if value is correct)'),
               textOutput("unusualTL"),
+            checkboxInput("integerTL", "Decimals in TL (must be whole numbers)"),
+            textOutput("integerTL"),
             checkboxInput("sampWt", "Invalid Weight"),
-              textOutput("sampWt"),
-            checkboxInput("sampWr", "Unusual Relative Weight (<60 or >120)"),
+            textOutput("sampWt"),
+            checkboxInput("sampWr", 'Unusual Relative Weight (<50 or >150). (Correct wt or TL if wrong, type "verified" in Verified.Wr column if values are correct)'),
               textOutput("sampWr")
           )
         )
@@ -210,8 +212,10 @@ fluidPage(
               textOutput("ageTL"),
              checkboxInput("unusualAgeTL", "Abnormally large or small TL"),
               textOutput("unusualAgeTL"),
-             checkboxInput("age", "Invalid Age"),
-             textOutput("age")
+             checkboxInput("integerAgeTL", "Decimals in TL (must be whole numbers)"),
+              textOutput("integerAgeTL"),
+             checkboxInput("age", "Invalid Age (must be an whole number between 0-40)"),
+             textOutput("age"),
           )
         )
      
