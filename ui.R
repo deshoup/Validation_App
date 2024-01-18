@@ -60,16 +60,12 @@ fluidPage(
             HTML('<br/>', '<br/>'),
             #checkboxInput("period2NA", "Change Periods to NA's", value = FALSE), #decided to hard code this
             hr(),
-            h4(tags$b("2) Initiate sample data validation check")),
-              actionButton("validateSamp", "Initiate Validation", class="butn"),
-            helpText("Error Identification Table will appear in middle panel."),
-            hr(),
-            h4(tags$b("3) Observe error status and fix as needed")),
+            h4(tags$b("2) Observe error status and fix as needed")),
             helpText("Fix any errors identified by the data validation function (Error Identification Table).
                       Then refresh page, reload data, and run validation function again until satisfied."),
             helpText("Use 3rd panel to identify specific row numbers violating each error rule."),
             hr(),
-            h4(tags$b("4) Download validated sample data")),
+            h4(tags$b("3) Download validated sample data")),
             helpText("If all error rules are 'Okay', dataset is ready to download."),
             helpText("Validated data will have required SampleID field and will be ready to
                      upload to main app."),
@@ -161,16 +157,12 @@ fluidPage(
             
             #checkboxInput("ageperiod2NA", "Change Periods to NA's", value = FALSE), #decided to hard code this
             hr(),
-            h4(tags$b("2) Initiate age data validation check")),
-            actionButton("validateAge", "Initiate Validation",class="butn"),
-            helpText("Error Identification Table will appear in middle panel."),
-            hr(),
-            h4(tags$b("3) Observe error status and fix as needed")),
+            h4(tags$b("2) Observe error status and fix as needed")),
             helpText("Fix any errors identified by the data validation function (Error Identification Table).
                      Then refresh page, reload data, and run validation function again until satisfied."),
             helpText("Use 3rd panel to identify specific row numbers violating each error rule."),
             hr(),
-            h4(tags$b("4) Download validated age data")),
+            h4(tags$b("3) Download validated age data")),
             helpText("If all error rules are 'Okay', age dataset is ready to download."),
             helpText("Validated age data will be ready to
                      upload to main app."),
@@ -350,7 +342,7 @@ fluidPage(
                 fluidRow(
                   column(2),
                   column(8, align="center",
-                         tags$iframe(style="height:700px; width:100%",
+                         tags$iframe(style="height:1300px; width:100%",
                                      src="odwc.ssp.ofaa.pdf#page=1&view=FitH")
                   )      
                 )        
