@@ -301,7 +301,8 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
         columnTemplate <- data.frame(colNames = colnames(read.csv("sampleTemplate.csv")))
         columnNames <- data.frame(colNames = colnames(sampleData()))
       #test if same names and same order (row order is now the list of columns in order)
-        if(all_equal(columnTemplate, columnNames, ignore_row_order = F) != TRUE){
+        # if(all_equal(columnTemplate, columnNames, ignore_row_order = F) != TRUE){ #all_equal has been depreciated, so trying alternative approach below
+          if(identical(columnTemplate, columnNames) != TRUE){
           okay <- c("Correct column names and order", "Error")
         }else{
           okay <- c("Correct column names and order", "Okay")
@@ -620,9 +621,9 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
         errorTable <- rbind(errorTable, okay)
         
         
-        sampleDataTL <- read.csv(
-          "C:/Users/desho/Documents/Research/ODWC data and reports/Shiny app/Training/2022 Texoma SSP training/App files to upload/Example data files/AA-TEXOMA.2021.23.sampledata4b.csv"
-        )
+        # sampleDataTL <- read.csv(
+        #   "C:/Users/desho/Documents/Research/ODWC data and reports/Shiny app/Training/2022 Texoma SSP training/App files to upload/Example data files/AA-TEXOMA.2021.23.sampledata4b.csv"
+        # )
     #Test that TL is an integer with no decimal places##################################
       non_integerTL <- sampleDataTL %>% filter(TL_mm != ".") %>% 
           mutate(roundTL = round(as.numeric(TL_mm),0)) %>% filter(roundTL!=TL_mm)
@@ -679,13 +680,11 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
 
 # Render sample error table#######################
   output$sampleError <- renderFormattable({
-      if(input$validateSamp != 0){
         validated <- validateSample()
         # function to conditionally color the text
         f1 <- formatter("span",
                         style = ~ ifelse(Status == "Error", "color:red", "color:green"))
         validated <- formattable(validated, list(Status = f1))
-      }else{return(NULL)}
   })
   
   
@@ -995,7 +994,7 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
   })
   
 ####Age tab####################################################
-# Run age data validation function when action button pressed#####################
+# Run age data validation function when file has been uploaded#####################
   
   validateAge <- reactive({
       
@@ -1009,7 +1008,8 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
           columnTemplateAge <- data.frame(colNames = colnames(read.csv("ageTemplate.csv")))
           columnNamesAge <- data.frame(colNames = colnames(ageData()))
         #test if same names and same order (row order is now the list of columns in order)
-          if(all_equal(columnTemplateAge, columnNamesAge, ignore_row_order = F) != TRUE){
+          # if(all_equal(columnTemplateAge, columnNamesAge, ignore_row_order = F) != TRUE){#all_equal is depreciated
+          if(identical(columnTemplateAge, columnNamesAge) != TRUE){
             okay <- c("Correct column names and order", "Error")
           }else{
             okay <- c("Correct column names and order", "Okay")
@@ -1184,13 +1184,11 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
   
 # Render age error table#######################
 output$ageError <- renderFormattable({
-  if(input$validateAge != 0){
     validatedAge <- validateAge()
     # function to conditionally color the text
     f1 <- formatter("span",
                     style = ~ ifelse(Status == "Error", "color:red", "color:green"))
     validatedAge <- formattable(validatedAge, list(Status = f1))
-  }else{return(NULL)}
 })
 
 # Return row numbers of errors from age sample validation rules#############
