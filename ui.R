@@ -117,13 +117,13 @@ fluidPage(
               textOutput("sampNOI"),
             checkboxInput("sampTL", "Invalid Total Length"),
               textOutput("sampTL"),
-            checkboxInput("unusualTL", 'Abnormally large or small TL. (Correct TL if wrong, type "verified" in Verified.TL column if value is correct)'),
+            checkboxInput("unusualTL", 'Abnormally large or small TL. (Correct TL if wrong, type "verified" [without quotes] in Verified.TL column if value is correct)'),
               textOutput("unusualTL"),
             checkboxInput("integerTL", "Decimals in TL (must be whole numbers)"),
             textOutput("integerTL"),
             checkboxInput("sampWt", "Invalid Weight"),
             textOutput("sampWt"),
-            checkboxInput("sampWr", 'Unusual Relative Weight (<50 or >150). (Correct wt or TL if wrong, type "verified" in Verified.Wr column if values are correct)'),
+            checkboxInput("sampWr", 'Unusual Relative Weight (<50 or >150). (Correct wt or TL if wrong, type "verified" [without quotes] in Verified.Wr column if values are correct)'),
               textOutput("sampWr")
           )
         )
