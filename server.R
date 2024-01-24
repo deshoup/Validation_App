@@ -80,10 +80,6 @@ output$ageTemplate <- downloadHandler(
       #(i.e., any period is an illegitimate value anyhow) but I cannot get test for blank station code to check for "." 
       #for some reason...so this approach fixes that issue by searching for periods and NA's simply by searching for NAs.
       
-      #below code was when we had button on shiny app to convert "." to NA.  We decided to just require "." rather than blanks or NA so this is not needed and was removed
-      # if(input$period2NA == TRUE){
-      #   sampleData[sampleData == "."] <- NA
-      # }
       sampleData
     }
   })
@@ -301,7 +297,6 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
         columnTemplate <- data.frame(colNames = colnames(read.csv("sampleTemplate.csv")))
         columnNames <- data.frame(colNames = colnames(sampleData()))
       #test if same names and same order (row order is now the list of columns in order)
-        # if(all_equal(columnTemplate, columnNames, ignore_row_order = F) != TRUE){ #all_equal has been depreciated, so trying alternative approach below
           if(identical(columnTemplate, columnNames) != TRUE){
           okay <- c("Correct column names and order", "Error")
         }else{
@@ -610,8 +605,8 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
                   mutate(TL_mm = as.numeric(as.character(TL_mm)))%>% #some files pull this in as factor and can't use > and < then
                   filter((Gear.Code == 10 & TL_mm > maxTL) | (Gear.Code!=10 & (TL_mm < minTL | TL_mm > maxTL))) %>% 
             #next 2 lines skip any row marked verified (needed to replace NA's as filter won't work with NA's)
-            mutate(Verified.TL = case_when(is.na(Verified.TL) | Verified.TL == "."  ~ "notVerif", TRUE~Verified.TL)) %>% 
-              filter(Verified.TL != "verified" & Verified.TL != "Verified")
+            mutate(Verified.TL = case_when(is.na(Verified.TL) | Verified.TL == "." | Verified.TL == ""  ~ "notVerif", TRUE~Verified.TL)) %>% 
+              filter(Verified.TL != "verified" & Verified.TL != "Verified" & Verified.TL != "\"verified\"" & Verified.TL != "\"Verified\"")
                 
         if(nrow(unusualTL)==0){
           okay <- c("Abnormally large or small TL", "Okay")
@@ -619,11 +614,7 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
           okay <- c("Abnormally large or small TL", "Error")
         }
         errorTable <- rbind(errorTable, okay)
-        
-        
-        # sampleDataTL <- read.csv(
-        #   "C:/Users/desho/Documents/Research/ODWC data and reports/Shiny app/Training/2022 Texoma SSP training/App files to upload/Example data files/AA-TEXOMA.2021.23.sampledata4b.csv"
-        # )
+
     #Test that TL is an integer with no decimal places##################################
       non_integerTL <- sampleDataTL %>% filter(TL_mm != ".") %>% 
           mutate(roundTL = round(as.numeric(TL_mm),0)) %>% filter(roundTL!=TL_mm)
@@ -659,8 +650,8 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
         sampleData$Wr <- wrAdd(as.numeric(as.character(Wt_g)) ~ as.numeric(as.character(TL_mm)) + wsname, units = "metric", data = sampleData)
         invalidWr <- filter(.data = sampleData, Wr < 50 | Wr >150) %>% 
           #next 2 lines skip any row marked verified (needed to replace NA's as filter won't work with NA's)
-          mutate(Verified.Wr = case_when(is.na(Verified.Wr) | Verified.Wr == "." ~ "notVerif", TRUE ~Verified.Wr)) %>% 
-            filter(Verified.Wr != "verified" & Verified.Wr != "Verified")
+          mutate(Verified.Wr = case_when(is.na(Verified.Wr) | Verified.Wr == "." | Verified.Wr == "" ~ "notVerif", TRUE ~Verified.Wr)) %>% 
+            filter(Verified.Wr != "verified" & Verified.Wr != "Verified" &  Verified.Wr != "\"verified\"" &  Verified.Wr != "\"Verified\"")
         
         if(nrow(invalidWr) == 0){
           # okay <- c("Invalid Relative Weight", "Okay")
@@ -938,10 +929,10 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
       unusualTL <- rownames_to_column(sampleData, "Rows")
       unusualTL <- left_join(unusualTL, minMaxTL, by= "Species.Code") %>% 
                   mutate(TL_mm = as.numeric(as.character(TL_mm)))%>% #some files pull this in as factor and can't use > and < then
-                  filter(TL_mm < minTL | TL_mm > maxTL) %>% 
+                  filter((Gear.Code == 10 & TL_mm > maxTL) | (Gear.Code!=10 & (TL_mm < minTL | TL_mm > maxTL)))  %>% 
         #next 2 lines skip any row marked verified (needed to replace NA's as filter won't work with NA's)
-        mutate(Verified.TL = case_when(is.na(Verified.TL) | Verified.TL == "."  ~ "notVerif")) %>% 
-          filter(Verified.TL != "verified" | Verified.TL != "Verified")
+        mutate(Verified.TL = case_when(is.na(Verified.TL) | Verified.TL == "." | Verified.TL == "" ~ "notVerif", TRUE~Verified.TL)) %>% 
+          filter(Verified.TL != "verified" & Verified.TL != "Verified" & Verified.TL != "\"verified\"" & Verified.TL != "\"Verified\"")
       
       unusualTL <- unusualTL %>% mutate(Rows = as.numeric(as.character(Rows)) + 1)
       c(unusualTL$Rows)
@@ -952,8 +943,8 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
     if(input$integerTL == TRUE){
       sampleData <- sampleData()
       non_integerTL <- rownames_to_column(sampleData, "Rows") %>% filter(TL_mm!=".") %>% 
-          mutate(roundTL = round(as.numeric(TL_mm),0)) %>% filter(roundTL!=TL_mm) %>% 
-          mutate(.data = non_integerTL, Rows = as.numeric(as.character(Rows)) + 1)
+          mutate(roundTL = round(as.numeric(TL_mm),0)) %>% filter(roundTL!=TL_mm) 
+      non_integerTL <- mutate(.data = non_integerTL, Rows = as.numeric(as.character(Rows)) + 1)
       c(non_integerTL$Rows)
     }
   })
@@ -975,8 +966,8 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
       sampleData <- join(sampleData, WSnames, by = "Species.Code")
       sampleData <- filter(sampleData, !is.na(TL_mm) & !is.na(Wt_g) & !is.na(wsname)) %>% 
         #next 2 lines skip any row marked verified (needed to replace NA's as filter won't work with NA's)
-        mutate(Verified.Wr = case_when(is.na(Verified.Wr) | Verified.Wr == "." ~ "notVerif")) %>% 
-          filter(Verified.Wr != "verified" | Verified.Wr != "Verified")
+        mutate(Verified.Wr = case_when(is.na(Verified.Wr) | Verified.Wr == "." | Verified.Wr == "" ~ "notVerif")) %>% 
+          filter(Verified.Wr != "verified" & Verified.Wr != "Verified" &  Verified.Wr != "\"verified\"" &  Verified.Wr != "\"Verified\"")
       
       if(nrow(sampleData) == 0){
         # sampWr <- "Okay"
@@ -1008,7 +999,6 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
           columnTemplateAge <- data.frame(colNames = colnames(read.csv("ageTemplate.csv")))
           columnNamesAge <- data.frame(colNames = colnames(ageData()))
         #test if same names and same order (row order is now the list of columns in order)
-          # if(all_equal(columnTemplateAge, columnNamesAge, ignore_row_order = F) != TRUE){#all_equal is depreciated
           if(identical(columnTemplateAge, columnNamesAge) != TRUE){
             okay <- c("Correct column names and order", "Error")
           }else{
@@ -1138,15 +1128,18 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
       errorTableAge <- rbind(errorTableAge, okay)
       
       #Test TL for min and max values########################################
+      unusualTLAge <- reactive({
         sampleDataTLAge <- filter(ageData(), !is.na(TLmm))
         unusualTLAge <- left_join(sampleDataTLAge, minMaxTL, by= "Species.Code") %>%  
                     mutate(TLmm = as.numeric(as.character(TLmm)))%>% #some files pull this in as factor and can't use > and < then
                     filter((Gear == 10 & TLmm > maxTL) | (Gear != 10 & (TLmm < minTL | TLmm > maxTL))) %>% 
           #next 2 lines skip any row marked verified (needed to replace NA's as filter won't work with NA's)
-          mutate(Verified.TL = case_when(is.na(Verified.TL) | Verified.TL == "."   ~ "notVerif")) %>% 
-            filter(Verified.TL != "verified" | Verified.TL != "Verified")
+          mutate(Verified.TL = case_when(is.na(Verified.TL) | Verified.TL == "." | Verified.TL == "" ~ "notVerif", TRUE~Verified.TL)) %>% 
+            filter(Verified.TL != "verified" & Verified.TL != "Verified" & Verified.TL != "\"verified\"" & Verified.TL != "\"Verified\"")
+        return(unusualTLAge)
+      })
         
-        if(nrow(unusualTLAge)==0){
+        if(nrow(unusualTLAge())==0){
           okay <- c("Abnormally large or small TL", "Okay")
         }else{
           okay <- c("Abnormally large or small TL", "Error")
@@ -1310,8 +1303,8 @@ output$ageError <- renderFormattable({
                   mutate(TLmm = as.numeric(as.character(TLmm)))%>% #some files pull this in as factor and can't use > and < then
                   filter(TLmm < minTL | TLmm > maxTL) %>% 
             #next 2 lines skip any row marked verified (needed to replace NA's as filter won't work with NA's)
-            mutate(Verified.TL = case_when(is.na(Verified.TL) | Verified.TL == "." ~ "notVerif")) %>% 
-            filter(Verified.TL != "verified" | Verified.TL != "Verified")
+            mutate(Verified.TL  = case_when(is.na(Verified.TL) | Verified.TL == "." | Verified.TL == "" ~ "notVerif", TRUE~Verified.TL)) %>% 
+            filter(Verified.TL != "verified" & Verified.TL != "Verified" & Verified.TL != "\"verified\"" & Verified.TL != "\"Verified\"")
      unusualAgeTL <- unusualAgeTL %>% mutate(Rows = as.numeric(as.character(Rows)) + 1)
       c(unusualAgeTL$Rows)
     }
@@ -1321,8 +1314,8 @@ output$ageError <- renderFormattable({
      if(input$integerAgeTL == TRUE){
        ageData <- ageData()
        non_integerTL <- rownames_to_column(ageData, "Rows") %>% filter(TLmm!=".") %>% 
-         mutate(roundTL = round(as.numeric(TLmm),0)) %>% filter(roundTL!=TLmm) %>% 
-         mutate(.data = non_integerTL, Rows = as.numeric(as.character(Rows)) + 1)
+         mutate(roundTL = round(as.numeric(TLmm),0)) %>% filter(roundTL!=TLmm)  
+       non_integerTL <- mutate(.data = non_integerTL, Rows = as.numeric(as.character(Rows)) + 1)
        c(non_integerTL$Rows)
      }
    })
