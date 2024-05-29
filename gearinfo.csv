@@ -1,5 +1,5 @@
 Gear Code,Gear Name,Gear Family
-10,Shoreline Seine,Sein
+10,Shoreline Seine,Seine
 21,Gill Net - Experimental (Old),Gillnet
 22,Gill Net - Other,Gillnet
 23,Gill Net - Experimental (Current),Gillnet
@@ -26,5 +26,6 @@ Gear Code,Gear Name,Gear Family
 48,Electrofishing - Sunfish,Electrofishing
 49.1,Electrofishing - Summer (Bass only),Electrofishing
 49,Electrofishing - Perch,Electrofishing
+68,Bow Fishing,Angling
 98,Electrofishing - flathead/blue catfish,Electrofishing
 98.1,Electrofishing  -flathead catfish,Electrofishing
