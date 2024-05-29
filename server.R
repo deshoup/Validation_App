@@ -53,12 +53,19 @@ output$ageTemplate <- downloadHandler(
     if(is.null(sampleData)){
       return(NULL)
     } else{
-      #sampleData <- read.csv(sampleData$datapath)
       #below automatically converts blanks and "NA" to NA's...but will flag these as needing to be ".".  Code for exporting validated file will also convert "." to NA
-      sampleData <- read.csv(sampleData$datapath, na.strings = c("","NA")) %>% 
-                       mutate(Gear.Code = as.numeric(as.character(Gear.Code)),
+      sampleData <- read.csv(sampleData$datapath, na.strings = c("","NA")) 
+                    if("Age" %in% colnames(sampleData)){
+                      showModal(modalDialog(
+                        title = "Warning: you have uploaded an age data file. Please upload a sampling data file or switch to the Validate Age Data tab.",
+                        footer = actionButton("dismissSampData", "Dismiss")
+                      ))
+                      return(NULL) #prevents any more code from running if wrong file type loaded
+                    }else{
+                      sampleData %>% mutate(Gear.Code = as.numeric(as.character(Gear.Code)),
                            Species.Code = as.numeric(Species.Code),
                            Number.of.individuals = as.numeric(as.character(Number.of.individuals)))
+                    }
       #create Verified.TL/Wr columns if they do not exist. This will be used to mark abnormal TL/Wr values that have been verified
       if("Verified.TL" %in% colnames(sampleData)){
         sampleData <- sampleData %>% mutate(Verified.TL = as.character(Verified.TL))
@@ -83,6 +90,11 @@ output$ageTemplate <- downloadHandler(
       sampleData
     }
   })
+  # deal with dismiss of modal generated above if file appeared to be an age file
+  observeEvent(input$dismissSampData, {
+    shinyjs::reset("sampleData")  #reset file upload box to be blank
+    removeModal()       # Close modal
+  })
   
 # read in .csv of age data from file input
 ageData <- reactive({
@@ -91,9 +103,16 @@ ageData <- reactive({
     return(NULL)
   } else{
     ageData <- read.csv(ageData$datapath, na.strings = c(".","NA"))
-    #ageData <- read.csv(ageData$datapath)
-    ageData <- mutate(ageData, Gear = as.numeric(as.character(Gear)), Species.Code = as.numeric(Species.Code),
+      if("Station" %in% colnames(ageData)){
+        showModal(modalDialog(
+          title = "Warning: you have uploaded a sampling data file. Please upload an age data file or switch to the Validate Sample Data tab.",
+          footer = actionButton("dismissAgeData", "Dismiss")
+        ))
+        return(NULL) #prevents any more code from running if wrong file type loaded
+      }else{
+        ageData <- mutate(ageData, Gear = as.numeric(as.character(Gear)), Species.Code = as.numeric(Species.Code),
                       Number.of.individuals = as.numeric(as.character(Number.of.individuals)))
+      }
     #create Verified.TL column if it does not exist. This will be used to mark abnormal TL values that have been verified.
     if("Verified.TL" %in% colnames(ageData)){
       ageData <- ageData %>% mutate(Verified.TL = as.character(Verified.TL))
@@ -109,6 +128,11 @@ ageData <- reactive({
     # }
     ageData
   }
+})
+# deal with dismiss of modal generated above if file appeared to be a sampling data file
+observeEvent(input$dismissAgeData, {
+  shinyjs::reset("ageData")  #reset file upload box to be blank
+  removeModal()       # Close modal
 })
 
 
@@ -154,8 +178,8 @@ lakeYrGear <- reactive({
                 sampleData[sampleData == "NA"] <- NA
                 sampleData$SampleID <- paste(sampleData$Lake.Code, sampleData$Station, sampleData$Month,
                                              sampleData$Day, sampleData$Year, sampleData$Gear.Code,
-                                             sep = "")
-                sampleData <- sampleData[,c(1,21,2:20)] #with separate Verified.TL & .Wr column
+                                             sep = "") 
+                sampleData <- sampleData %>%  relocate("SampleID", .after=Lake.Code)
                 write.csv(sampleData, file, row.names = FALSE)
               }
             )
@@ -446,20 +470,18 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
             invalidLength <- filter(.data = sampleData, Gear.Length > 300 | Gear.Length < 1)
             sampleData$NAlength <- lapply(sampleData$Gear.Length, is.na)
             sampleData$NAlength[sampleData$Gear.Length=="."] <-  TRUE
-            NAlength <- filter(.data = sampleData, NAlength == "TRUE")
-            NAlength <- NAlength[,-19]
+            NAlength <- filter(.data = sampleData, NAlength == "TRUE") %>% select(-NAlength)
             invalidLength <- rbind(invalidLength, NAlength)
             
             sampleData <- sampleData()
             
-            ###Below was dissabled 3-29-2019 per request from Ashly Nealis...some old historic data had reasons for 
-            ###using wierd gear efforts and this column is not needed for CPUE calculation, so it is unnecessary for
+            ###Below was disabled 3-29-2019 per request from Ashley Nealis...some old historic data had reasons for 
+            ###using weird gear efforts and this column is not needed for CPUE calculation, so it is unnecessary for
             ###people to have to fix these.
             invalidEffort <- filter(.data = sampleData, Effort <0) #> 24 | Effort < 0.1)
             sampleData$NAeffort <- lapply(sampleData$Effort, is.na)
             sampleData$NAeffort[sampleData$Effort=="."] <-  TRUE
-            NAeffort <- filter(.data = sampleData, NAeffort == "TRUE")
-            NAeffort <- NAeffort[,-19]
+            NAeffort <- filter(.data = sampleData, NAeffort == "TRUE") %>% select(-NAeffort)
             invalidEffort <- rbind(invalidEffort, NAeffort)
           }
           # if trapnet, gear length (length of lead), must be > 5 ft and < 150 ft and not null
@@ -471,8 +493,7 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
             invalidLength <- filter(.data = sampleData, Gear.Length <0) #> 150 | Gear.Length < 5)
             sampleData$NAlength <- lapply(sampleData$Gear.Length, is.na)
             sampleData$NAlength[sampleData$Gear.Length=="."] <-  TRUE
-            NAlength <- filter(.data = sampleData, NAlength == "TRUE")
-            NAlength <- NAlength[,-19]
+            NAlength <- filter(.data = sampleData, NAlength == "TRUE") %>% select(-NAlength)
             invalidLength <- rbind(invalidLength, NAlength)
             
             sampleData <- sampleData()
@@ -480,8 +501,7 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
             invalidEffort <- filter(.data = sampleData, Effort > 96 | Effort < 0.1)
             sampleData$NAeffort <- lapply(sampleData$Effort, is.na)
             sampleData$NAeffort[sampleData$Effort=="."] <-  TRUE
-            NAeffort <- filter(.data = sampleData, NAeffort == "TRUE")
-            NAeffort <- NAeffort[,-19]
+            NAeffort <- filter(.data = sampleData, NAeffort == "TRUE") %>% select(-NAeffort)
             invalidEffort <- rbind(invalidEffort, NAeffort)
           }
           # if gillnet, gear length (length of net), must be > 10 ft and < 2000 ft and not null
@@ -493,8 +513,7 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
             invalidLength <- filter(.data = sampleData, Gear.Length <0)# > 2000 | Gear.Length < 10)
             sampleData$NAlength <- lapply(sampleData$Gear.Length, is.na)
             sampleData$NAlength[sampleData$Gear.Length=="."] <-  TRUE
-            NAlength <- filter(.data = sampleData, NAlength == "TRUE")
-            NAlength <- NAlength[,-19]
+            NAlength <- filter(.data = sampleData, NAlength == "TRUE" )%>% select(-NAlength)
             invalidLength <- rbind(invalidLength, NAlength)
             
             sampleData <- sampleData()
@@ -502,8 +521,7 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
             invalidEffort <- filter(.data = sampleData, Effort > 96 | Effort < 0.1)
             sampleData$NAeffort <- lapply(sampleData$Effort, is.na)
             sampleData$NAeffort[sampleData$Effort=="."] <-  TRUE
-            NAeffort <- filter(.data = sampleData, NAeffort == "TRUE")
-            NAeffort <- NAeffort[,-19]
+            NAeffort <- filter(.data = sampleData, NAeffort == "TRUE") %>% select(-NAeffort)
             invalidEffort <- rbind(invalidEffort, NAeffort)
           }
           # if seine, gear length (length of seine), must be > 5 ft and < 100 ft and not null
@@ -512,8 +530,7 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
             invalidLength <- filter(.data = sampleData, Gear.Length > 100 | Gear.Length < 5)
             sampleData$NAlength <- lapply(sampleData$Gear.Length, is.na)
             sampleData$NAlength[sampleData$Gear.Length=="."] <-  TRUE
-            NAlength <- filter(.data = sampleData, NAlength == "TRUE")
-            NAlength <- NAlength[,-19]
+            NAlength <- filter(.data = sampleData, NAlength == "TRUE") %>% select(-NAlength)
             invalidLength <- rbind(invalidLength, NAlength)
             
             sampleData <- sampleData()
@@ -521,8 +538,7 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
             invalidEffort <- filter(.data = sampleData, Effort < 100)
             sampleData$NAeffort <- lapply(sampleData$Effort, is.na)
             sampleData$NAeffort[sampleData$Effort=="."] <-  TRUE
-            NAeffort <- filter(.data = sampleData, NAeffort == "TRUE")
-            NAeffort <- NAeffort[,-19]
+            NAeffort <- filter(.data = sampleData, NAeffort == "TRUE") %>% select(-NAeffort)
             invalidEffort <- rbind(invalidEffort, NAeffort)
           }
           
@@ -576,8 +592,7 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
       invalidNOI <- filter(.data = sampleData, Number.of.individuals < 1)
       sampleData$NAnoi <- lapply(sampleData$Number.of.individuals, is.na)
       sampleData$NAnoi[sampleData$Number.of.individuals=="."] <-  TRUE
-      NAnoi <- filter(.data = sampleData, NAnoi == "TRUE")
-      NAnoi <- NAnoi[,-19]
+      NAnoi <- filter(.data = sampleData, NAnoi == "TRUE") %>% select(-NAnoi)
       invalidNOI <- rbind(invalidNOI, NAnoi)
       
       if(nrow(invalidNOI) == 0){
@@ -803,8 +818,7 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
           sampleData <- rownames_to_column(sampleData, "Rows")
           invalidLength <- filter(.data = sampleData, Gear.Length > 300 | Gear.Length < 1)
           sampleData$NAlength <- lapply(sampleData$Gear.Length, is.na)
-          NAlength <- filter(.data = sampleData, NAlength == "TRUE")
-          NAlength <- NAlength[,-20]
+          NAlength <- filter(.data = sampleData, NAlength == "TRUE") %>% select(-NAlength)
           invalidLength <- rbind(invalidLength, NAlength)
           invalidLength <- mutate(.data = invalidLength, Rows = as.numeric(as.character(Rows))+1)
           sampLength <- sort.int(c(invalidLength$Rows))
@@ -812,8 +826,7 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
           sampleData <- rownames_to_column(sampleData, "Rows")
           invalidLength <- filter(.data = sampleData, Gear.Length > 150 | Gear.Length < 5)
           sampleData$NAlength <- lapply(sampleData$Gear.Length, is.na)
-          NAlength <- filter(.data = sampleData, NAlength == "TRUE")
-          NAlength <- NAlength[,-20]
+          NAlength <- filter(.data = sampleData, NAlength == "TRUE") %>% select(-NAlength)
           invalidLength <- rbind(invalidLength, NAlength)
           invalidLength <- mutate(.data = invalidLength, Rows = as.numeric(as.character(Rows))+1)
           sampLength <- sort.int(c(invalidLength$Rows))
@@ -821,8 +834,7 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
           sampleData <- rownames_to_column(sampleData, "Rows")
           invalidLength <- filter(.data = sampleData, Gear.Length > 2000 | Gear.Length < 10)
           sampleData$NAlength <- lapply(sampleData$Gear.Length, is.na)
-          NAlength <- filter(.data = sampleData, NAlength == "TRUE")
-          NAlength <- NAlength[,-20]
+          NAlength <- filter(.data = sampleData, NAlength == "TRUE") %>% select(-NAlength)
           invalidLength <- rbind(invalidLength, NAlength)
           invalidLength <- mutate(.data = invalidLength, Rows = as.numeric(as.character(Rows))+1)
           sampLength <- sort.int(c(invalidLength$Rows))
@@ -830,8 +842,7 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
           sampleData <- rownames_to_column(sampleData, "Rows")
           invalidLength <- filter(.data = sampleData, Gear.Length > 100 | Gear.Length < 5)
           sampleData$NAlength <- lapply(sampleData$Gear.Length, is.na)
-          NAlength <- filter(.data = sampleData, NAlength == "TRUE")
-          NAlength <- NAlength[,-20]
+          NAlength <- filter(.data = sampleData, NAlength == "TRUE") %>% select(-NAlength)
           invalidLength <- rbind(invalidLength, NAlength)
           invalidLength <- mutate(.data = invalidLength, Rows = as.numeric(as.character(Rows))+1)
           sampLength <- sort.int(c(invalidLength$Rows))
@@ -851,8 +862,7 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
         sampleData <- rownames_to_column(sampleData, "Rows")
         invalidEffort <- filter(.data = sampleData, Effort > 24 | Effort < 0.1)
         sampleData$NAEffort <- lapply(sampleData$Effort, is.na)
-        NAEffort <- filter(.data = sampleData, NAEffort == "TRUE")
-        NAEffort <- NAEffort[,-20]
+        NAEffort <- filter(.data = sampleData, NAEffort == "TRUE") %>% select(-NAEffort)
         invalidEffort <- rbind(invalidEffort, NAEffort)
         invalidEffort <- mutate(.data = invalidEffort, Rows = as.numeric(as.character(Rows))+1)
         sampEffort <- sort.int(c(invalidEffort$Rows))
@@ -860,8 +870,7 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
         sampleData <- rownames_to_column(sampleData, "Rows")
         invalidEffort <- filter(.data = sampleData, Effort > 96 | Effort < 0.1)
         sampleData$NAEffort <- lapply(sampleData$Effort, is.na)
-        NAEffort <- filter(.data = sampleData, NAEffort == "TRUE")
-        NAEffort <- NAEffort[,-20]
+        NAEffort <- filter(.data = sampleData, NAEffort == "TRUE") %>% select(-NAEffort)
         invalidEffort <- rbind(invalidEffort, NAEffort)
         invalidEffort <- mutate(.data = invalidEffort, Rows = as.numeric(as.character(Rows))+1)
         sampEffort <- sort.int(c(invalidEffort$Rows))
@@ -869,8 +878,7 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
         sampleData <- rownames_to_column(sampleData, "Rows")
         invalidEffort <- filter(.data = sampleData, Effort > 96 | Effort < 0.1)
         sampleData$NAEffort <- lapply(sampleData$Effort, is.na)
-        NAEffort <- filter(.data = sampleData, NAEffort == "TRUE")
-        NAEffort <- NAEffort[,-20]
+        NAEffort <- filter(.data = sampleData, NAEffort == "TRUE") %>% select(-NAEffort)
         invalidEffort <- rbind(invalidEffort, NAEffort)
         invalidEffort <- mutate(.data = invalidEffort, Rows = as.numeric(as.character(Rows))+1)
         sampEffort <- sort.int(c(invalidEffort$Rows))
@@ -878,8 +886,7 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
         sampleData <- rownames_to_column(sampleData, "Rows")
         invalidEffort <- filter(.data = sampleData, Effort < 100)
         sampleData$NAEffort <- lapply(sampleData$Effort, is.na)
-        NAEffort <- filter(.data = sampleData, NAEffort == "TRUE")
-        NAEffort <- NAEffort[,-20]
+        NAEffort <- filter(.data = sampleData, NAEffort == "TRUE") %>% select(-NAEffort)
         invalidEffort <- rbind(invalidEffort, NAEffort)
         invalidEffort <- mutate(.data = invalidEffort, Rows = as.numeric(as.character(Rows))+1)
         sampEffort <- sort.int(c(invalidEffort$Rows))
@@ -905,8 +912,7 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
       sampleData <- rownames_to_column(sampleData, "Rows")
       invalidNOI <- filter(.data = sampleData, Number.of.individuals < 1)
       sampleData$NAnoi <- lapply(sampleData$Number.of.individuals, is.na)
-      NAnoi <- filter(.data = sampleData, NAnoi == "TRUE")
-      NAnoi <- NAnoi[,-20]
+      NAnoi <- filter(.data = sampleData, NAnoi == "TRUE") %>% select(-NAnoi)
       invalidNOI <- rbind(invalidNOI, NAnoi)
       invalidNOI <- mutate(.data = invalidNOI, Rows = as.numeric(as.character(Rows))+1)
       sampNOI <- sort.int(c(invalidNOI$Rows))
@@ -1101,8 +1107,7 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
       # Check if Number of individuals is not 0 and not null #########################
       invalidNOIAge <- filter(.data = ageData, Number.of.individuals < 1)
       ageData$NAnoiAge <- lapply(ageData$Number.of.individuals, is.na)
-      NAnoiAge <- filter(.data = ageData, NAnoiAge == "TRUE")
-      NAnoiAge <- NAnoiAge[,-10]
+      NAnoiAge <- filter(.data = ageData, NAnoiAge == "TRUE") %>% select(-NAnoiAge)
       invalidNOIAge <- rbind(invalidNOIAge, NAnoiAge)
       
       if(nrow(invalidNOIAge) == 0){
@@ -1116,8 +1121,7 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
       # TLmm must not = 0...(should be null)####################################################
       invalidTLAge <- filter(.data = ageData, TLmm == 0)
       ageData$NATLAge <- lapply(ageData$TLmm, is.na)
-      NATLAge <- filter(.data = ageData, NATLAge == "TRUE")
-      NATLAge <- NATLAge[,-10]
+      NATLAge <- filter(.data = ageData, NATLAge == "TRUE") %>% select(-NATLAge)
       invalidTLAge <- rbind(invalidTLAge, NATLAge)
       
       if(nrow(invalidTLAge) == 0){
@@ -1159,19 +1163,29 @@ output$ageDataDisplayTable <- DT::renderDataTable({DT::datatable(ageDataDisplay(
       
       # Check if Age is within acceptable options (integer 0-40; Required Field)#####
         ageData <- ageData()
-        ageData$invalidAge <- ageData$Age %in% c(seq(0,40,1))
+        if((ageData$Species.Code[1]>=302 & ageData$Species.Code[1]<=307) |
+           ageData$Species.Code[1] == 311 | ageData$Species.Code[1] == 321 |
+           ageData$Species.Code[1] == 325 |
+           (ageData$Species.Code[1]>=402 & ageData$Species.Code[1]<=405)){
+              ageData$invalidAge <- ageData$Age %in% c(seq(0,100,1))}
+        else if(ageData$Species.Code[1] == 1145 | ageData$Species.Code[1] == 115 | ageData$Species.Code[1] == 401){
+              ageData$invalidAge <- ageData$Age %in% c(seq(0,40,1))
+        }else{
+              ageData$invalidAge <- ageData$Age %in% c(seq(0,20,1)) 
+          }
         invalidAge <- filter(.data = ageData, invalidAge == "FALSE")
-        
+
         if(nrow(invalidAge) == 0){
           okay <- c("Invalid Age", "Okay")
         } else{
           okay <- c("Invalid Age", "Error")
+          # okay <- c("Invalid Age", "Okay") #for Schooley so he can validate older fish until we get a patch
         }
         errorTableAge <- rbind(errorTableAge, okay)
         ageData <- ageData()
-        
+
         errorTableAge
-      
+
   })
   
   
@@ -1273,8 +1287,7 @@ output$ageError <- renderFormattable({
       ageData <- rownames_to_column(ageData, "Rows")
       invalidNOIAge <- filter(.data = ageData, Number.of.individuals < 1)
       ageData$NAnoi <- lapply(ageData$Number.of.individuals, is.na)
-      NAnoiAge <- filter(.data = ageData, NAnoi == "TRUE")
-      NAnoiAge <- NAnoiAge[,-11]
+      NAnoiAge <- filter(.data = ageData, NAnoi == "TRUE") %>% select(-NAnoi)
       invalidNOIAge <- rbind(invalidNOIAge, NAnoiAge)
       invalidNOIAge <- mutate(.data = invalidNOIAge, Rows = as.numeric(as.character(Rows))+1)
       sampNOIAge <- sort.int(c(invalidNOIAge$Rows))
@@ -1287,8 +1300,7 @@ output$ageError <- renderFormattable({
       ageData <- rownames_to_column(ageData, "Rows")
       invalidageTL <- filter(.data = ageData, TLmm == 0)
       ageData$NATL <- lapply(ageData$TLmm, is.na)
-      NATL <- filter(.data = ageData, NATL == "TRUE")
-      NATL <- NATL[,-11]
+      NATL <- filter(.data = ageData, NATL == "TRUE") %>% select(-NATL)
       invalidageTL<- rbind(invalidageTL, NATL)
       invalidageTL <- mutate(.data = invalidageTL, Rows = as.numeric(as.character(Rows)) + 1)
       c(invalidageTL$Rows)
@@ -1323,7 +1335,17 @@ output$ageError <- renderFormattable({
    output$age <- renderText({
     if(input$age == TRUE){
       ageData <- ageData()
-      ageData$invalidAge <- ageData$Age %in% c(seq(0,40,1))
+      # ageData$invalidAge <- ageData$Age %in% c(seq(0,40,1))
+      
+      ageData <- ageData %>% mutate(invalidAge = case_when((Species.Code>=302 & Species.Code<=307) |
+         Species.Code == 311 | Species.Code == 321 | Species.Code == 325 |
+         (Species.Code>=402 & Species.Code<=405) ~
+              Age %in% c(seq(0,100,1)),
+        Species.Code == 114 | Species.Code == 115 | Species.Code == 401 ~
+              Age %in% c(seq(0,40,1)),
+        TRUE ~ Age %in% c(seq(0,20,1)))
+      )
+      
       invalidAge <- rownames_to_column(ageData, "Rows")
       invalidAge <- filter(.data = invalidAge, invalidAge == "FALSE")
       invalidAge <- mutate(.data = invalidAge, Rows = as.numeric(as.character(Rows)) + 1)

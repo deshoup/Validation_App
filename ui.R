@@ -206,7 +206,7 @@ fluidPage(
               textOutput("unusualAgeTL"),
              checkboxInput("integerAgeTL", "Decimals in TL (must be whole numbers)"),
               textOutput("integerAgeTL"),
-             checkboxInput("age", "Invalid Age (must be an whole number between 0-40)"),
+             checkboxInput("age", "Invalid Age (must be an whole number between 0-20 for most species but can be up to 40 for spp code 114, 115 & 401 and up to 100 for spp code 302-307, 311, 321, 325 or 402-405)"),
              textOutput("age"),
           )
         )
