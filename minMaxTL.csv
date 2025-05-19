@@ -1,4 +1,4 @@
-"Species.Code","minTL","maxTL"
+Species.Code,minTL,maxTL
 101,82.55,660.4
 104,63.5,508
 105,68.58,548.64
@@ -41,6 +41,3 @@
 406,91.44,731.52
 501,45.4025,483
 502,20.3,162.4
-NA,NA,NA
-NA,NA,NA
-NA,NA,NA

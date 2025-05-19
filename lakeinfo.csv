@@ -1,306 +1,308 @@
-"Lake.Code","Lake.Name","Lake.System","ODWC.Region","Lake.Size","CTHFP"
-"10CHOC","Choctaw 10 Acre Pond","","Central",NA,"Yes"
-"33RD","33rd Street Pond Dam","","Central",NA,"Yes"
-"ADAIR","Adair Recreational Area","","East Central",NA,""
-"ADAMS","Adams","","Northwest",NA,""
-"ALTCIT","Altus City","","Southwest",NA,""
-"AMHORS","American Horse","","Northwest",NA,""
-"ARBUCK","Arbuckle","","South Central",NA,""
-"ARCADI","Arcadia","","Central",NA,""
-"ARDCIT","Ardmore City","","South Central",NA,""
-"ATOBLU","Atoka Bluestem","","South Central",NA,""
-"ATOKA","Atoka Lake","","South Central",NA,""
-"BARDEW","Bar-Dew","","North Central",NA,""
-"BARREN","Barren Fork Creek","","East Central",NA,""
-"BARTLE","Bartlesville","","Northeast",NA,""
-"BEAVER","Beaver","","Northwest",NA,""
-"BEGGS","Beggs","","Central",NA,""
-"BELLCO","Bell Cow","","Central",NA,""
-"BIRCH","Birch","","North Central",NA,""
-"BIXHOM","Bixhoma","","Northeast",NA,""
-"BLACK","Carl Blackwell","","North Central",NA,""
-"BLNCHN","Crystal Lake - Blanchard","","Central",NA,"Yes"
-"BLNCHS","Crystal Lake - Blanchard","","Central",NA,"Yes"
-"BLUEST","Bluestem","","North Central",NA,""
-"BOOMER","Boomer","","North Central",NA,""
-"BOREN","Boren","","Northeast",NA,""
-"BOSWEL","Boswell","","Southeast",NA,""
-"BOYER","Boyer","","Southwest",NA,""
-"BRBOW","Broken Bow","","Southeast",NA,""
-"BRISTO","Bristow","","Northeast",NA,""
-"BROWN","Brown","","Southeast",NA,""
-"BRUSHY","Brushy Creek","","East Central",NA,""
-"BRYCTY","","","",NA,""
-"BURFOR","Burford","","Southwest",NA,""
-"BURTSC","Burtschi","","Southwest",NA,""
-"BYARS","Byars","","Central",NA,""
-"CACHEC","Cache Creek","","Southwest",NA,""
-"CADD18","Caddo 18","","South Central",NA,""
-"CANTON","Canton","","Northwest",NA,""
-"CARLAL","Carl Albert","","Southeast",NA,""
-"CARLTO","Carlton","","Southeast",NA,""
-"CARTER","Carter","","South Central",NA,""
-"CEDAR","Cedar","","Southeast",NA,""
-"CENTRL","Eufala Central Arm","Eufala","East Central",NA,""
-"CHAMBE","Chambers","","Northwest",NA,""
-"CHANDL","Chandler","","Central",NA,""
-"CHELSE","Chelsea City","","Northeast",NA,""
-"CHELSH","Chleshoma","","Northeast",NA,""
-"CHICKA","Chickasha","","Southwest",NA,""
-"CHOUTE","Chouteau L&D 17","","Northeast",NA,""
-"CHROCK","Chimney Rock","","Northeast",NA,""
-"CHURCH","Church","","Southeast",NA,""
-"CLAREM","Claremore City","","Northeast",NA,""
-"CLAYTO","Clayton","","Southeast",NA,""
-"CLEAR","Clearview","","Central",NA,""
-"CLEARC","Clear Creek","","Southwest",NA,""
-"CLEMS","","","",NA,""
-"CLEVEL","Cleveland","","North Central",NA,""
-"CLINTO","Clinton","","Northwest",NA,""
-"COALGA","Coalgate","","South Central",NA,""
-"COMANC","Comanche","","Southwest",NA,""
-"COONCK","Coon Creek","","Southeast",NA,""
-"COPAN","Copan","","Northeast",NA,""
-"CRATER","Crater","","Southwest",NA,""
-"CROOKB","Crooked Branch","","?",NA,""
-"CROSSL","Crosslin","","Northwest",NA,"Yes"
-"CROWDE","Crowder","","Northwest",NA,""
-"CRYSTL","Crystal","","Central",NA,"Yes"
-"CSCLOW","","","",NA,""
-"CSCTOP","","","",NA,""
-"CUSHCC","Cushing Country Club Pond","","North Central",NA,""
-"CUSHIN","Cushing","","North Central",NA,""
-"DALGRN","Dahlgren","","Central",NA,""
-"DAVENP","Davenport","","Central",NA,""
-"DEADIN","Dead Indian","","Northwest",NA,""
-"DEEPFK","Eufala Deep Fork Arm","Eufala","East Central",NA,""
-"DOLESE","Dolese Youth Park","","Central",NA,"Yes"
-"DOW","Dow","","Southeast",NA,""
-"DRAC","Dale Robertson Activity","","Central",NA,"Yes"
-"DRAPER","Stanley Draper","","Central",NA,""
-"DROWNC","Grand Drowning Creek Arm","Grand","Northeast",NA,""
-"DRSPGS","Dripping Springs","","Central",NA,""
-"DUCK","Duck Pond (OU)","","Central",NA,""
-"DUNCAN","Duncan","","Southwest",NA,""
-"DURANT","Durant","","South Central",NA,""
-"DUSTIN","Dustin","","Central",NA,""
-"EAGLE","Eagle","","Central",NA,"Yes"
-"EDWARD","Edwards Park","","Central",NA,"Yes"
-"ELKCIT","Elk City","","Northwest",NA,""
-"ELKRIV","Grand Elk River Arm","Grand","Northeast",NA,""
-"ELLSWO","Ellsworth","","Southwest",NA,""
-"ELMER","Elmer","","Northwest",NA,""
-"ELMERT","Elmer Thomas","","Southwest",NA,"Yes"
-"ELMORE","Elmore City Lake","","Central",NA,""
-"ELRENO","El Reno","","Central",NA,""
-"ESPERA","","","",NA,""
-"ETLING","Carl Etling","","Northwest",NA,""
-"EUCHA","Eucha","","Northeast",NA,""
-"EUFAUL","Eufaula","Eufala","East Central",NA,""
-"EVACRK","","","",NA,""
-"EVANS","Evans Chamber","","Northwest",NA,""
-"FAIRFA","Fairfax","","North Central",NA,""
-"FALCON","Falcon Lake","","",NA,""
-"FINFEA","","","",NA,""
-"FLATCR","Fort Gibson Flatrock Creek Arm","Fort Gibson","Northeast",NA,""
-"FLINT","","","",NA,""
-"FOSS","Foss","","Northwest",NA,""
-"FRANCE","Frances","","East Central",NA,""
-"FREDER","Frederick","","Southwest",NA,""
-"FRENCH","French","","Southwest",NA,""
-"FTCOBB","Fort Cobb","","Southwest",NA,""
-"FTGIB","Fort Gibson","Fort Gibson","Northeast",NA,""
-"FTSUPP","Fort Supply","","Northwest",NA,""
-"FUQUA","Fuqua","","Southwest",NA,""
-"GAINES","Eufala Gains Creek Arm","Eufala","East Central",NA,""
-"GARRIS","","","",NA,""
-"GOVTSP","Government Springs","","Northwest",NA,"Yes"
-"GRAHAM","Newt Graham L&D 18","","Northeast",NA,""
-"GRAMMA","Gramma","","Southwest",NA,""
-"GRAND","Grand Lake","","Northeast",NA,""
-"GRAPEV","Grapevine Lake","","",NA,""
-"GREENL","Greenleaf","","East Central",NA,""
-"GRIFFN","Griffin","","Central",NA,"Yes"
-"GRSALT","Great Salt Plain","","Northwest",NA,""
-"GUTHRI","Guthrie","","Central",NA,""
-"GUYMON","","","",NA,""
-"HACKBE","Hackberry WMA Pond","","Southwest",NA,""
-"HALL","Hall","","Southwest",NA,""
-"HARRA","Heritage Park","","Central",NA,"Yes"
-"HARTSH","Harthorne","","?",NA,""
-"HASKEL","Haskell","","East Central",NA,""
-"HEALDT","Healdton","","South Central",NA,""
-"HEFNER","Hefner","","Central",NA,""
-"HELEN","Helen","","Southwest",NA,""
-"HENRY","Henryetta","","Central",NA,""
-"HEYBUR","Heyburn","","Northeast",NA,""
-"HIGHLA","Highland","","Central",NA,"Yes"
-"HOLDEN","Holdenville","","Central",NA,""
-"HOMINY","Hominy","","North Central",NA,""
-"HONEYC","Grand Honey Creek Arm","Grand","Northeast",NA,""
-"HORANY","George Horany","","Northeast",NA,""
-"HORSEC","Grand Horse Creek Arm","Grand","Northeast",NA,""
-"HPEAST","","","",NA,""
-"HPNORT","","","",NA,""
-"HPSOUT","","","",NA,""
-"HUDSON","Hudson","","Northeast",NA,""
-"HUGO","Hugo","","Southeast",NA,""
-"HULAH","Hulah","","North Central",NA,""
-"HUMPHR","Humphreys","","Southwest",NA,""
-"JACKBA","Fort Gibson Jackson Bay Arm","Fort Gibson","Northeast",NA,""
-"JAPBEA","Jap Beaver","","Southwest",NA,""
-"JEDJOH","Jed Johnson","","Southwest",NA,""
-"JENKS","Veterans Pond","","Northeast",NA,"Yes"
-"JEWEL","","","",NA,""
-"JIMHAL","Jim Hall Lake","","Central",NA,""
-"JNEUST","Jean Neustadt","","South Central",NA,""
-"JONES","Battey-Mulhousen","","Central",NA,"Yes"
-"KAW","Kaw","","North Central",NA,""
-"KELLYL","Kelly Lane Pond","","Northeast",NA,"Yes"
-"KERR","Robert S. Kerr","","East Central",NA,""
-"KEYSTO","Keystone","","North Central",NA,""
-"KIDSWE","Kids Lake West","","Central",NA,"Yes"
-"KITCHN","Kitchen Lake","","Central",NA,"Yes"
-"KONAWA","Konawa","","Central",NA,""
-"LANGST","Langston","","Central",NA,""
-"LANSBR","Lansbrook","","Central",NA,""
-"LAWTON","Lawtonka","","Southwest",NA,""
-"LEEPER","Leeper","","South Central",NA,""
-"LEGNPP","Legion Park","","Central",NA,"Yes"
-"LIBERT","Liberty","","Central",NA,""
-"LINDSA","Lindsay City Lake","","Central",NA,""
-"LONECH","Lone Chimney","","North Central",NA,""
-"LONGMI","Longmire","","Central",NA,""
-"LOOKOU","Lookout","","North Central",NA,""
-"LOSTLK","Lost Lakes","","Central",NA,""
-"LUGERT","Altus-Lugert","","Southwest",NA,""
-"LYNNLN","Lynn Lane","","Northeast",NA,""
-"MADILL","Madill City Lake","","South Central",NA,""
-"MANNFO","Mannford","","Northeast",NA,""
-"MASSEN","Massena Lake","","Northeast",NA,""
-"MCAFIN","","","",NA,""
-"MCALES","Mcalester","","Southeast",NA,""
-"MCGEE","McGee","","South Central",NA,""
-"MCMURT","McMurtry","","North Central",NA,""
-"MEADOW","Meadow","","Northwest",NA,"Yes"
-"MEEKER","Meeker","","Central",NA,""
-"MERAMI","","","",NA,""
-"MEREM","","","",NA,""
-"MINERL","Mineral Wells Park","","Central",NA,"Yes"
-"MITCH","Mitch","","Central",NA,"Yes"
-"MJLEE","MJ Lee Lake","","Northeast",NA,"Yes"
-"MSTPEN","McAlester Lake","","Southeast",NA,""
-"MTLAKE","Mountain Lake","","South Central",NA,""
-"MULDRO","Muldrow City","","East Central",NA,""
-"MULVEY","Mulvey","","Central",NA,""
-"MURRAY","Murray","","Southwest",NA,""
-"NEWCAS","Veterans","","Central",NA,"Yes"
-"NEWSPI","New Spiro","","Southeast",NA,""
-"NICHOL","Henryetta Nichols Park","","Central",NA,""
-"NORCAN","Eufala North Canadian Arm","Eufala","East Central",NA,""
-"NWAIYA","Nanih Waiya","","Southeast",NA,""
-"NWOOD","","","",NA,""
-"OKCZOO","Oklahoma City Zoo","","Central",NA,"Yes"
-"OKEMAH","Okemah","","Central",NA,""
-"OKMULG","Okmulgee","","Central",NA,""
-"ONAPA","Onapa","","East Central",NA,""
-"OOLOGA","Oologah","","Northeast",NA,""
-"OPTIMA","Optima","","Northwest",NA,""
-"OVERHO","Overholser","","Central",NA,""
-"OZCOBB","Ozzie Cobb","","Southeast",NA,""
-"PAWHUS","Pawhuska","","North Central",NA,""
-"PAWNEE","Pawnee","","North Central",NA,""
-"PCREEK","Pine Creek","","Southeast",NA,""
-"PERRY","Perry","","North Central",NA,""
-"PERRYC","Perry C.C.C.","","North Central",NA,""
-"PINESW","","","",NA,""
-"PITTSB","Pittsburg City Lake","","Southeast",NA,""
-"PONCA","Ponca City","","North Central",NA,""
-"PORUM","Porum City","","East Central",NA,""
-"PRAGUE","Prague","","Central",NA,""
-"PRETTY","Pretty Water","","Northeast",NA,""
-"PURCEL","Purcell","","Central",NA,""
-"PVALLY","Pauls Valley","","Central",NA,""
-"QUANAH","Quanah Parker","","Southwest",NA,""
-"RAYGAR","Raymond Gary","","Southeast",NA,""
-"ROCKY","Rocky","","Northwest",NA,""
-"ROLAND","Roland","","East Central",NA,""
-"RT66","Route 66 Park","","Central",NA,"Yes"
-"RUSH","Rush","","Southwest",NA,""
-"SAHOMA","Sahoma","","Northeast",NA,""
-"SALLIS","Sallisaw","","Central",NA,""
-"SANBOR","Sanborn","","North Central",NA,""
-"SANDSP","Sand Spring","","Northeast",NA,""
-"SARDIS","Sardis","","Southeast",NA,""
-"SCHOOL","Schooler","","Southeast",NA,""
-"SENIOR","","","",NA,""
-"SHAWN1","Shawnee Twin #1","","Central",NA,""
-"SHAWN2","Shawnee Twin #2","","Central",NA,""
-"SHELLC","Shell Creek","","North Central",NA,""
-"SHIDLE","Shidler","","North Central",NA,""
-"SHILLN","Soutlakes North","","Central",NA,"Yes"
-"SHILLS","Southlakes South","","Central",NA,"Yes"
-"SJONES","Sally Jones","","East Central",NA,""
-"SKIATO","Skiatook","","North Central",NA,""
-"SKIPOU","Skipout","","Northwest",NA,""
-"SKYLIN","Skyline","","Southwest",NA,"Yes"
-"SLPRKE","South Lakes Park East","","Central",NA,"Yes"
-"SLPRKW","South Lakes Park West","","Central",NA,"Yes"
-"SMITH","Smith Lake",NA,"Central",NA,NA
-"SOONER","Sooner","","North Central",NA,""
-"SOUCAN","Eufala South Canadian Arm","Eufala","East Central",NA,""
-"SPARKS","Sparks","","Central",NA,""
-"SPAVIN","Spavinaw","","Northeast",NA,""
-"SPIRO","Spiro","","Southeast",NA,""
-"SPORTS","Sportsman","","Central",NA,""
-"SPRING","Spring Creek","","Northwest",NA,""
-"STEED","Tom Steed","","Southwest",NA,""
-"STIGLR","Stigler","","East Central",NA,""
-"STILWE","Stilwell City Lake","","East Central",NA,""
-"STROUD","Stroud","","Northeast",NA,""
-"SULVET","Veterans (Sulphur)","","South Central",NA,""
-"SUNOSG","Sunset Lake, Osage County","","North Central",NA,""
-"SUNTEX","Sunset Lake, Texas County","","Northwest",NA,""
-"SUTTON","Sutton","","Central",NA,""
-"TAFT","Taft","","East Central",NA,""
-"TALAW1","Talawanda #1","","Southeast",NA,""
-"TALAW2","Talawanda #2","","Southeast",NA,""
-"TAYLOR","Taylor","","Southwest",NA,""
-"TECUMS","Tecumseh","","Central",NA,""
-"TEMPLE","Temple City","","Southwest",NA,""
-"TENKIL","Tenkiller","","East Central",NA,""
-"TEXOMA","Texoma","Texoma","South Central",NA,""
-"TEXRR","Texoma Red River Arm","Texoma","South Central",NA,""
-"TEXWR","Texoma Washita River Arm","Texoma","South Central",NA,""
-"THBIRD","Thunderbird","","Central",NA,""
-"THOMAS","Buck Thomas","","Central",NA,"Yes"
-"UPILLR","Upper Illinois River","","",NA,""
-"VANDER","Vanderwork","","Northwest",NA,""
-"VERLIN","Lake Verlin",NA,"Central",NA,NA
-"VIAN","Vian","","East Central",NA,""
-"VINCEN","Lake Lloyd Vincent","","Northwest",NA,""
-"WARD","Ward","","Southeast",NA,""
-"WATERW","Waterworks","","Northwest",NA,"Yes"
-"WATONG","Watonga","","Northwest",NA,""
-"WAURIK","Waurika","","Southwest",NA,""
-"WAXHOM","Waxhoma","","North Central",NA,""
-"WAYWAL","Wayne Wallace","","Southeast",NA,""
-"WDMAYO","W.D. Mayo","","Southeast",NA,""
-"WELEET","Weleetka","","Central",NA,""
-"WELSH","","","",NA,""
-"WESTVL","Westville Lake","","East Central",NA,""
-"WESWAT","Wes Watkins Lake","","Central",NA,""
-"WETUMK","Wetumka","","Central",NA,""
-"WEWOKA","Wewoka","","Central",NA,""
-"WFALLS","Webbers Falls","","East Central",NA,""
-"WIDCUT","Texoma Widow Moore Cutout Lake","Texoma","South Central",NA,""
-"WILDHO","Wildhorse Lake","","Central",NA,""
-"WILLOW","Willow Lake","","Central",NA,""
-"WINTER","Wintersmith","","South Central",NA,""
-"WIPOST","Wiley Post","","Central",NA,""
-"WISTER","Wister","","Southeast",NA,""
-"WOODAG","","","",NA,""
-"YAHOLA","Yahola","","Northeast",NA,""
-"YOUTH1","","","",NA,""
-"YOUTH2","","","",NA,""
-"ZACHAR","","","",NA,""
+Lake.Code,Lake.Name,Lake.System,ODWC.Region,Lake.Size,CTHFP
+10CHOC,Choctaw 10 Acre Pond,,Central,NA,Yes
+33RD,33rd Street Pond Dam,,Central,NA,Yes
+ADAIR,Adair Recreational Area,,East Central,NA,
+ADAMS,Adams,,Northwest,NA,
+ALTCIT,Altus City,,Southwest,NA,
+AMHORS,American Horse,,Northwest,NA,
+ARBUCK,Arbuckle,,South Central,NA,
+ARCADI,Arcadia,,Central,NA,
+ARDCIT,Ardmore City,,South Central,NA,
+ATOBLU,Atoka Bluestem,,South Central,NA,
+ATOKA,Atoka Lake,,South Central,NA,
+BARDEW,Bar-Dew,,North Central,NA,
+BARREN,Barren Fork Creek,,East Central,NA,
+BARTLE,Bartlesville,,Northeast,NA,
+BEAVER,Beaver,,Northwest,NA,
+BEGGS,Beggs,,Central,NA,
+BELLCO,Bell Cow,,Central,NA,
+BIRCH,Birch,,North Central,NA,
+BIXHOM,Bixhoma,,Northeast,NA,
+BLACK,Carl Blackwell,,North Central,NA,
+BLNCHN,Crystal Lake - Blanchard,,Central,NA,Yes
+BLNCHS,Crystal Lake - Blanchard,,Central,NA,Yes
+BLUEST,Bluestem,,North Central,NA,
+BOOMER,Boomer,,North Central,NA,
+BOREN,Boren,,Northeast,NA,
+BOSWEL,Boswell,,Southeast,NA,
+BOYER,Boyer,,Southwest,NA,
+BRBOW,Broken Bow,,Southeast,NA,
+BRISTO,Bristow,,Northeast,NA,
+BROWN,Brown,,Southeast,NA,
+BRUSHY,Brushy Creek,,East Central,NA,
+BRYCTY,,,,NA,
+BURFOR,Burford,,Southwest,NA,
+BURTSC,Burtschi,,Southwest,NA,
+BYARS,Byars,,Central,NA,
+CACHEC,Cache Creek,,Southwest,NA,
+CADD18,Caddo 18,,South Central,NA,
+CANTON,Canton,,Northwest,NA,
+CARLAL,Carl Albert,,Southeast,NA,
+CARLTO,Carlton,,Southeast,NA,
+CARTER,Carter,,South Central,NA,
+CEDAR,Cedar,,Southeast,NA,
+CENTRL,Eufala Central Arm,Eufala,East Central,NA,
+CHAMBE,Chambers,,Northwest,NA,
+CHANDL,Chandler,,Central,NA,
+CHELSE,Chelsea City,,Northeast,NA,
+CHELSH,Chleshoma,,Northeast,NA,
+CHICKA,Chickasha,,Southwest,NA,
+CHOUTE,Chouteau L&D 17,,Northeast,NA,
+CHROCK,Chimney Rock,,Northeast,NA,
+CHURCH,Church,,Southeast,NA,
+CLAREM,Claremore City,,Northeast,NA,
+CLAYTO,Clayton,,Southeast,NA,
+CLEAR,Clearview,,Central,NA,
+CLEARC,Clear Creek,,Southwest,NA,
+CLEMS,,,,NA,
+CLEVEL,Cleveland,,North Central,NA,
+CLINTO,Clinton,,Northwest,NA,
+COALGA,Coalgate,,South Central,NA,
+COMANC,Comanche,,Southwest,NA,
+COONCK,Coon Creek,,Southeast,NA,
+COPAN,Copan,,Northeast,NA,
+CRATER,Crater,,Southwest,NA,
+CROOKB,Crooked Branch,,?,NA,
+CROSSL,Crosslin,,Northwest,NA,Yes
+CROWDE,Crowder,,Northwest,NA,
+CRYSTL,Crystal,,Central,NA,Yes
+CSCLOW,,,,NA,
+CSCTOP,,,,NA,
+CUSHCC,Cushing Country Club Pond,,North Central,NA,
+CUSHIN,Cushing,,North Central,NA,
+DALGRN,Dahlgren,,Central,NA,
+DAVENP,Davenport,,Central,NA,
+DEADIN,Dead Indian,,Northwest,NA,
+DEEPFK,Eufala Deep Fork Arm,Eufala,East Central,NA,
+DOLESE,Dolese Youth Park,,Central,NA,Yes
+DOW,Dow,,Southeast,NA,
+DRAC,Dale Robertson Activity,,Central,NA,Yes
+DRAPER,Stanley Draper,,Central,NA,
+DROWNC,Grand Drowning Creek Arm,Grand,Northeast,NA,
+DRSPGS,Dripping Springs,,Central,NA,
+DUCK,Duck Pond (OU),,Central,NA,
+DUNCAN,Duncan,,Southwest,NA,
+DURANT,Durant,,South Central,NA,
+DUSTIN,Dustin,,Central,NA,
+EAGLE,Eagle,,Central,NA,Yes
+EDWARD,Edwards Park,,Central,NA,Yes
+ELKCIT,Elk City,,Northwest,NA,
+ELKRIV,Grand Elk River Arm,Grand,Northeast,NA,
+ELLSWO,Ellsworth,,Southwest,NA,
+ELMER,Elmer,,Northwest,NA,
+ELMERT,Elmer Thomas,,Southwest,NA,Yes
+ELMORE,Elmore City Lake,,Central,NA,
+ELRENO,El Reno,,Central,NA,
+ESPERA,,,,NA,
+ETLING,Carl Etling,,Northwest,NA,
+EUCHA,Eucha,,Northeast,NA,
+EUFAUL,Eufaula,Eufala,East Central,NA,
+EVACRK,,,,NA,
+EVANS,Evans Chamber,,Northwest,NA,
+FAIRFA,Fairfax,,North Central,NA,
+FALCON,Falcon Lake,,,NA,
+FINFEA,,,,NA,
+FLATCR,Fort Gibson Flatrock Creek Arm,Fort Gibson,Northeast,NA,
+FLINT,,,,NA,
+FOSS,Foss,,Northwest,NA,
+FRANCE,Frances,,East Central,NA,
+FREDER,Frederick,,Southwest,NA,
+FRENCH,French,,Southwest,NA,
+FTCOBB,Fort Cobb,,Southwest,NA,
+FTGIB,Fort Gibson,Fort Gibson,Northeast,NA,
+FTSUPP,Fort Supply,,Northwest,NA,
+FUQUA,Fuqua,,Southwest,NA,
+GAINES,Eufala Gains Creek Arm,Eufala,East Central,NA,
+GARRIS,,,,NA,
+GOVTSP,Government Springs,,Northwest,NA,Yes
+GRAHAM,Newt Graham L&D 18,,Northeast,NA,
+GRAMMA,Gramma,,Southwest,NA,
+GRAND,Grand Lake,,Northeast,NA,
+GRAPEV,Grapevine Lake,,,NA,
+GREENL,Greenleaf,,East Central,NA,
+GRIFFN,Griffin,,Central,NA,Yes
+GRSALT,Great Salt Plain,,Northwest,NA,
+GUTHRI,Guthrie,,Central,NA,
+GUYMON,,,,NA,
+HACKBE,Hackberry WMA Pond,,Southwest,NA,
+HALL,Hall,,Southwest,NA,
+HARRA,Heritage Park,,Central,NA,Yes
+HARTSH,Harthorne,,?,NA,
+HASKEL,Haskell,,East Central,NA,
+HEALDT,Healdton,,South Central,NA,
+HEFNER,Hefner,,Central,NA,
+HELEN,Helen,,Southwest,NA,
+HENRY,Henryetta,,Central,NA,
+HEYBUR,Heyburn,,Northeast,NA,
+HIGHLA,Highland,,Central,NA,Yes
+HOLDEN,Holdenville,,Central,NA,
+HOMINY,Hominy,,North Central,NA,
+HONEYC,Grand Honey Creek Arm,Grand,Northeast,NA,
+HORANY,George Horany,,Northeast,NA,
+HORSEC,Grand Horse Creek Arm,Grand,Northeast,NA,
+HPEAST,,,,NA,
+HPNORT,,,,NA,
+HPSOUT,,,,NA,
+HUDSON,Hudson,,Northeast,NA,
+HUGO,Hugo,,Southeast,NA,
+HULAH,Hulah,,North Central,NA,
+HUMPHR,Humphreys,,Southwest,NA,
+JACKBA,Fort Gibson Jackson Bay Arm,Fort Gibson,Northeast,NA,
+JAPBEA,Jap Beaver,,Southwest,NA,
+JEDJOH,Jed Johnson,,Southwest,NA,
+JENKS,Veterans Pond,,Northeast,NA,Yes
+JEWEL,,,,NA,
+JIMHAL,Jim Hall Lake,,Central,NA,
+JNEUST,Jean Neustadt,,South Central,NA,
+JONES,Battey-Mulhousen,,Central,NA,Yes
+KAW,Kaw,,North Central,NA,
+KELLYL,Kelly Lane Pond,,Northeast,NA,Yes
+KERR,Robert S. Kerr,,East Central,NA,
+KEYSTO,Keystone,,North Central,NA,
+KIDSWE,Kids Lake West,,Central,NA,Yes
+KITCHN,Kitchen Lake,,Central,NA,Yes
+KONAWA,Konawa,,Central,NA,
+LANGST,Langston,,Central,NA,
+LANSBR,Lansbrook,,Central,NA,
+LAWTON,Lawtonka,,Southwest,NA,
+LEEPER,Leeper,,South Central,NA,
+LEGNPP,Legion Park,,Central,NA,Yes
+LIBERT,Liberty,,Central,NA,
+LINDSA,Lindsay City Lake,,Central,NA,
+LONECH,Lone Chimney,,North Central,NA,
+LONGMI,Longmire,,Central,NA,
+LOOKOU,Lookout,,North Central,NA,
+LOSTLK,Lost Lakes,,Central,NA,
+LTLRIV,Moore - Little River Ponds,,Central,NA,Yes
+LUGERT,Altus-Lugert,,Southwest,NA,
+LYNNLN,Lynn Lane,,Northeast,NA,
+MADILL,Madill City Lake,,South Central,NA,
+MANNFO,Mannford,,Northeast,NA,
+MASSEN,Massena Lake,,Northeast,NA,
+MCAFIN,,,,NA,
+MCALES,Mcalester,,Southeast,NA,
+MCGEE,McGee,,South Central,NA,
+MCMURT,McMurtry,,North Central,NA,
+MEADOW,Meadow,,Northwest,NA,Yes
+MEEKER,Meeker,,Central,NA,
+MERAMI,,,,NA,
+MEREM,,,,NA,
+MINERL,Mineral Wells Park,,Central,NA,Yes
+MITCH,Mitch,,Central,NA,Yes
+MJLEE,MJ Lee Lake,,Northeast,NA,Yes
+MSTPEN,McAlester Lake,,Southeast,NA,
+MTLAKE,Mountain Lake,,South Central,NA,
+MULDRO,Muldrow City,,East Central,NA,
+MULVEY,Mulvey,,Central,NA,
+MURRAY,Murray,,Southwest,NA,
+NEWCAS,Veterans,,Central,NA,Yes
+NEWSPI,New Spiro,,Southeast,NA,
+NICHOL,Henryetta Nichols Park,,Central,NA,
+NORCAN,Eufala North Canadian Arm,Eufala,East Central,NA,
+NWAIYA,Nanih Waiya,,Southeast,NA,
+NWOOD,,,,NA,
+OKCZOO,Oklahoma City Zoo,,Central,NA,Yes
+OKEMAH,Okemah,,Central,NA,
+OKMULG,Okmulgee,,Central,NA,
+ONAPA,Onapa,,East Central,NA,
+OOLOGA,Oologah,,Northeast,NA,
+OPTIMA,Optima,,Northwest,NA,
+OVERHO,Overholser,,Central,NA,
+OZCOBB,Ozzie Cobb,,Southeast,NA,
+PAWHUS,Pawhuska,,North Central,NA,
+PAWNEE,Pawnee,,North Central,NA,
+PCREEK,Pine Creek,,Southeast,NA,
+PERRY,Perry,,North Central,NA,
+PERRYC,Perry C.C.C.,,North Central,NA,
+PINESW,,,,NA,
+PITTSB,Pittsburg City Lake,,Southeast,NA,
+PONCA,Ponca City,,North Central,NA,
+PORUM,Porum City,,East Central,NA,
+PRAGUE,Prague,,Central,NA,
+PRETTY,Pretty Water,,Northeast,NA,
+PURCEL,Purcell,,Central,NA,
+PVALLY,Pauls Valley,,Central,NA,
+QUANAH,Quanah Parker,,Southwest,NA,
+RAYGAR,Raymond Gary,,Southeast,NA,
+ROCKY,Rocky,,Northwest,NA,
+ROLAND,Roland,,East Central,NA,
+RT66,Route 66 Park,,Central,NA,Yes
+RUSH,Rush,,Southwest,NA,
+SAHOMA,Sahoma,,Northeast,NA,
+SALLIS,Sallisaw,,Central,NA,
+SANBOR,Sanborn,,North Central,NA,
+SANDSP,Sand Spring,,Northeast,NA,
+SARDIS,Sardis,,Southeast,NA,
+SCHOOL,Schooler,,Southeast,NA,
+SENIOR,,,,NA,
+SHAWN1,Shawnee Twin #1,,Central,NA,
+SHAWN2,Shawnee Twin #2,,Central,NA,
+SHELLC,Shell Creek,,North Central,NA,
+SHIDLE,Shidler,,North Central,NA,
+SHILLN,Soutlakes North,,Central,NA,Yes
+SHILLS,Southlakes South,,Central,NA,Yes
+SJONES,Sally Jones,,East Central,NA,
+SKIATO,Skiatook,,North Central,NA,
+SKIPOU,Skipout,,Northwest,NA,
+SKYLIN,Skyline,,Southwest,NA,Yes
+SLPRKE,South Lakes Park East,,Central,NA,Yes
+SLPRKW,South Lakes Park West,,Central,NA,Yes
+SMITH,Smith Lake,NA,Central,NA,NA
+SOONER,Sooner,,North Central,NA,
+SOUCAN,Eufala South Canadian Arm,Eufala,East Central,NA,
+SPARKS,Sparks,,Central,NA,
+SPAVIN,Spavinaw,,Northeast,NA,
+SPIRO,Spiro,,Southeast,NA,
+SPORTS,Sportsman,,Central,NA,
+SPRING,Spring Creek,,Northwest,NA,
+STEED,Tom Steed,,Southwest,NA,
+STIGLR,Stigler,,East Central,NA,
+STILWE,Stilwell City Lake,,East Central,NA,
+STROUD,Stroud,,Northeast,NA,
+SULVET,Veterans (Sulphur),,South Central,NA,
+SUNOSG,"Sunset Lake, Osage County",,North Central,NA,
+SUNTEX,"Sunset Lake, Texas County",,Northwest,NA,
+SUTTON,Sutton,,Central,NA,
+TAFT,Taft,,East Central,NA,
+TALAW1,Talawanda #1,,Southeast,NA,
+TALAW2,Talawanda #2,,Southeast,NA,
+TAYLOR,Taylor,,Southwest,NA,
+TECUMS,Tecumseh,,Central,NA,
+TEMPLE,Temple City,,Southwest,NA,
+TENKIL,Tenkiller,,East Central,NA,
+TEXOMA,Texoma,Texoma,South Central,NA,
+TEXRR,Texoma Red River Arm,Texoma,South Central,NA,
+TEXWR,Texoma Washita River Arm,Texoma,South Central,NA,
+THBIRD,Thunderbird,,Central,NA,
+THOMAS,Buck Thomas,,Central,NA,Yes
+UPILLR,Upper Illinois River,,,NA,
+VANDER,Vanderwork,,Northwest,NA,
+VERLIN,Lake Verlin,NA,Central,NA,NA
+VIAN,Vian,,East Central,NA,
+VINCEN,Lake Lloyd Vincent,,Northwest,NA,
+WARD,Ward,,Southeast,NA,
+WATERW,Waterworks,,Northwest,NA,Yes
+WATONG,Watonga,,Northwest,NA,
+WAURIK,Waurika,,Southwest,NA,
+WAXHOM,Waxhoma,,North Central,NA,
+WAYWAL,Wayne Wallace,,Southeast,NA,
+WDMAYO,W.D. Mayo,,Southeast,NA,
+WELEET,Weleetka,,Central,NA,
+WELSH,,,,NA,
+WESTVL,Westville Lake,,East Central,NA,
+WESWAT,Wes Watkins Lake,,Central,NA,
+WETUMK,Wetumka,,Central,NA,
+WEWOKA,Wewoka,,Central,NA,
+WFALLS,Webbers Falls,,East Central,NA,
+WIDCUT,Texoma Widow Moore Cutout Lake,Texoma,South Central,NA,
+WILDHO,Wildhorse Lake,,Central,NA,
+WILLOW,Willow Lake,,Central,NA,
+WINTER,Wintersmith,,South Central,NA,
+WIPOST,Wiley Post,,Central,NA,
+WISTER,Wister,,Southeast,NA,
+WOODAG,,,,NA,
+YAHOLA,Yahola,,Northeast,NA,
+YOUTH1,,,,NA,
+YOUTH2,,,,NA,
+ZACHAR,,,,NA,
+NOTALAKE,NOT REAL DATA,,,,
